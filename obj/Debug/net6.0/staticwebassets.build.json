@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "TlHTZfrKVxFgigZc9IsVcnfbB+P3kEhZQvmYhpNlfgU=",
+  "Source": "TabDeb-api",
+  "BasePath": "_content/TabDeb-api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

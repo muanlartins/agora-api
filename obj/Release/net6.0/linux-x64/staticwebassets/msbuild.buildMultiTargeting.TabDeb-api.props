@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\TabDeb-api.props" />
+</Project>
