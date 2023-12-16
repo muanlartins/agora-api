@@ -15,11 +15,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
   };
 });
 
+builder.Services.AddCors(
+  policyBuilder => 
+    policyBuilder.AddDefaultPolicy(
+      policy =>
+        policy.WithOrigins("*").AllowAnyOrigin().AllowAnyHeader()
+    )
+);
+
 builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 
 WebApplication app = builder.Build();
 
 app.UseAuthentication();
+app.UseCors();
 
 UsersService usersService = new UsersService(builder);
 AuthService authService = new AuthService(builder);

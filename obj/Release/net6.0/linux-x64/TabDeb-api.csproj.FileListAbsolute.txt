@@ -46,3 +46,4 @@ C:\Users\muanl\repos\TabDeb-API\obj\Release\net6.0\linux-x64\refint\TabDeb-api.d
 C:\Users\muanl\repos\TabDeb-API\obj\Release\net6.0\linux-x64\TabDeb-api.pdb
 C:\Users\muanl\repos\TabDeb-API\obj\Release\net6.0\linux-x64\TabDeb-api.genruntimeconfig.cache
 C:\Users\muanl\repos\TabDeb-API\obj\Release\net6.0\linux-x64\ref\TabDeb-api.dll
+C:\Users\muanl\repos\TabDeb-API\bin\Release\net6.0\linux-x64\aws-lambda-tools-defaults.json

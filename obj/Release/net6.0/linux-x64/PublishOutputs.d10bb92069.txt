@@ -1,6 +1,7 @@
 C:\Users\muanl\repos\TabDeb-API\bin\Release\net6.0\publish\TabDeb-api
 C:\Users\muanl\repos\TabDeb-API\bin\Release\net6.0\publish\appsettings.Development.json
 C:\Users\muanl\repos\TabDeb-API\bin\Release\net6.0\publish\appsettings.json
+C:\Users\muanl\repos\TabDeb-API\bin\Release\net6.0\publish\aws-lambda-tools-defaults.json
 C:\Users\muanl\repos\TabDeb-API\bin\Release\net6.0\publish\TabDeb-api.dll
 C:\Users\muanl\repos\TabDeb-API\bin\Release\net6.0\publish\TabDeb-api.deps.json
 C:\Users\muanl\repos\TabDeb-API\bin\Release\net6.0\publish\TabDeb-api.runtimeconfig.json

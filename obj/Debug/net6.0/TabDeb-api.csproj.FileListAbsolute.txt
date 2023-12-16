@@ -46,3 +46,4 @@ C:\Users\muanl\repos\TabDeb-API\obj\Debug\net6.0\staticwebassets\msbuild.build.T
 C:\Users\muanl\repos\TabDeb-API\obj\Debug\net6.0\staticwebassets\msbuild.buildMultiTargeting.TabDeb-api.props
 C:\Users\muanl\repos\TabDeb-API\obj\Debug\net6.0\staticwebassets\msbuild.buildTransitive.TabDeb-api.props
 C:\Users\muanl\repos\TabDeb-API\obj\Debug\net6.0\staticwebassets.pack.json
+C:\Users\muanl\repos\TabDeb-API\bin\Debug\net6.0\aws-lambda-tools-defaults.json
