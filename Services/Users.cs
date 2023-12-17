@@ -77,8 +77,8 @@ public class UsersService {
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
-        { ":f", new AttributeValue { S = updatedUser.fullName } },
-        { ":n", new AttributeValue { S = updatedUser.nickname } }
+        { ":f", new AttributeValue { S = updatedUser.fullName ?? "" } },
+        { ":n", new AttributeValue { S = updatedUser.nickname ?? "" } }
     };
 
     string updateExpression = "SET #F = :f, #N = :n";

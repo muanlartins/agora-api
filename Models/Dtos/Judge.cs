@@ -1,0 +1,1 @@
+public record Judge(string id, string name);
