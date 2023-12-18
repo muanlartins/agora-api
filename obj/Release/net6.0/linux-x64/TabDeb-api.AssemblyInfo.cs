@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TabDeb-api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c3db06f90f57faad9b04658f14167aec4b1fc77c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8d056ff627265558fb300b20bce5da07bfcf34eb")]
 [assembly: System.Reflection.AssemblyProductAttribute("TabDeb-api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TabDeb-api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

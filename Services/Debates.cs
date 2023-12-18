@@ -22,12 +22,12 @@ public class DebatesService {
 
     Dictionary<string, AttributeValue> pm = GetDebaterDictionary(debate.pm);
     Dictionary<string, AttributeValue> lo = GetDebaterDictionary(debate.lo);
-    Dictionary<string, AttributeValue> ag = GetDebaterDictionary(debate.ag);
-    Dictionary<string, AttributeValue> ao = GetDebaterDictionary(debate.ao);
-    Dictionary<string, AttributeValue> eg = GetDebaterDictionary(debate.eg);
-    Dictionary<string, AttributeValue> eo = GetDebaterDictionary(debate.eo);
-    Dictionary<string, AttributeValue> wg = GetDebaterDictionary(debate.wg);
-    Dictionary<string, AttributeValue> wo = GetDebaterDictionary(debate.wo);
+    Dictionary<string, AttributeValue> dpm = GetDebaterDictionary(debate.dpm);
+    Dictionary<string, AttributeValue> dlo = GetDebaterDictionary(debate.dlo);
+    Dictionary<string, AttributeValue> mg = GetDebaterDictionary(debate.mg);
+    Dictionary<string, AttributeValue> mo = GetDebaterDictionary(debate.mo);
+    Dictionary<string, AttributeValue> gw = GetDebaterDictionary(debate.gw);
+    Dictionary<string, AttributeValue> ow = GetDebaterDictionary(debate.ow);
     Dictionary<string, AttributeValue> chair = GetJudgeDictionary(debate.chair);
     List<AttributeValue> wings = new List<AttributeValue>();
     if (debate.wings is not null) 
@@ -44,20 +44,20 @@ public class DebatesService {
       { "id", new AttributeValue { S = id } }, 
       { "pm", new AttributeValue { M = pm } },
       { "lo", new AttributeValue { M = lo } },
-      { "ag", new AttributeValue { M = ag } },
-      { "ao", new AttributeValue { M = ao } },
-      { "eg", new AttributeValue { M = eg } },
-      { "eo", new AttributeValue { M = eo } },
-      { "wg", new AttributeValue { M = wg } },
-      { "wo", new AttributeValue { M = wo } },
+      { "dpm", new AttributeValue { M = dpm } },
+      { "dlo", new AttributeValue { M = dlo } },
+      { "mg", new AttributeValue { M = mg } },
+      { "mo", new AttributeValue { M = mo } },
+      { "gw", new AttributeValue { M = gw } },
+      { "ow", new AttributeValue { M = ow } },
       { "pmSp", new AttributeValue { N = debate.pmSp.ToString() } },
       { "loSp", new AttributeValue { N = debate.loSp.ToString() } },
-      { "agSp", new AttributeValue { N = debate.agSp.ToString() } },
-      { "aoSp", new AttributeValue { N = debate.aoSp.ToString() } },
-      { "egSp", new AttributeValue { N = debate.egSp is not null ? debate.egSp.ToString() : "0" } },
-      { "eoSp", new AttributeValue { N = debate.eoSp is not null ? debate.eoSp.ToString() : "0" } },
-      { "wgSp", new AttributeValue { N = debate.wgSp is not null ? debate.wgSp.ToString() : "0" } },
-      { "woSp", new AttributeValue { N = debate.woSp is not null ? debate.woSp.ToString() : "0" } },
+      { "dpmSp", new AttributeValue { N = debate.dpmSp.ToString() } },
+      { "dloSp", new AttributeValue { N = debate.dloSp.ToString() } },
+      { "mgSp", new AttributeValue { N = debate.mgSp is not null ? debate.mgSp.ToString() : "0" } },
+      { "moSp", new AttributeValue { N = debate.moSp is not null ? debate.moSp.ToString() : "0" } },
+      { "gwSp", new AttributeValue { N = debate.gwSp is not null ? debate.gwSp.ToString() : "0" } },
+      { "owSp", new AttributeValue { N = debate.owSp is not null ? debate.owSp.ToString() : "0" } },
       { "og", new AttributeValue { S = debate.og } },
       { "oo", new AttributeValue { S = debate.oo } },
       { "cg", new AttributeValue { S = debate.cg is not null ? debate.cg : "" } },
@@ -83,20 +83,20 @@ public class DebatesService {
       id, 
       debate.pm, 
       debate.lo,
-      debate.ag,
-      debate.ao,
-      debate.eg,
-      debate.eo,
-      debate.wg,
-      debate.wo,
+      debate.dpm,
+      debate.dlo,
+      debate.mg,
+      debate.mo,
+      debate.gw,
+      debate.ow,
       debate.pmSp,
       debate.loSp,
-      debate.agSp,
-      debate.aoSp,
-      debate.egSp,
-      debate.eoSp,
-      debate.wgSp,
-      debate.woSp,
+      debate.dpmSp,
+      debate.dloSp,
+      debate.mgSp,
+      debate.moSp,
+      debate.gwSp,
+      debate.owSp,
       debate.og,
       debate.oo,
       debate.cg,
