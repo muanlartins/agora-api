@@ -34,5 +34,6 @@ UsersRoute.GetRoutes(app, builder);
 JudgesRoute.GetRoutes(app, builder);
 DebatersRoute.GetRoutes(app, builder);
 DebatesRoute.GetRoutes(app, builder);
+DuosRoute.GetRoutes(app, builder);
 
 app.Run();

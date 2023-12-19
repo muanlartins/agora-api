@@ -1,0 +1,1 @@
+public record Duo(string id, Debater a, Debater b);
