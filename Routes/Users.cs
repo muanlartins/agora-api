@@ -13,7 +13,9 @@ public static class UsersRoute {
       return Results.Ok(user);
     });
 
-    app.MapPost("/user", async (Credentials credentials) => {
+    app.MapPost("/user", async (Credentials credentials, string jwtKey) => {
+      if (builder.Configuration["Jwt:Key"] != jwtKey) return Results.BadRequest("Chave JWT errada.");
+
       bool? created = await usersService.CreateUser(credentials);
 
       if (created is not null) return Results.Ok(created);
