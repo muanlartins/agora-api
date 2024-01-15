@@ -1,0 +1,1 @@
+public record Member(string id, string name, Society society);

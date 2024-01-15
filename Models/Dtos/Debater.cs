@@ -1,1 +1,0 @@
-public record Debater(string id, string name);

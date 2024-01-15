@@ -20,63 +20,51 @@ public class DebatesService {
   public async Task<Debate> CreateDebate(Debate debate) {
     string id = Guid.NewGuid().ToString();
 
-    Dictionary<string, AttributeValue> pm = GetDebaterDictionary(debate.pm);
-    Dictionary<string, AttributeValue> lo = GetDebaterDictionary(debate.lo);
-    Dictionary<string, AttributeValue> dpm = GetDebaterDictionary(debate.dpm);
-    Dictionary<string, AttributeValue> dlo = GetDebaterDictionary(debate.dlo);
-    Dictionary<string, AttributeValue> mg = GetDebaterDictionary(debate.mg);
-    Dictionary<string, AttributeValue> mo = GetDebaterDictionary(debate.mo);
-    Dictionary<string, AttributeValue> gw = GetDebaterDictionary(debate.gw);
-    Dictionary<string, AttributeValue> ow = GetDebaterDictionary(debate.ow);
-    Dictionary<string, AttributeValue> chair = GetJudgeDictionary(debate.chair);
-
-    List<AttributeValue> wings = new List<AttributeValue>();
-    if (debate.wings is not null) 
-      foreach (Judge wing in debate.wings) 
-        wings.Add(new AttributeValue { M = GetJudgeDictionary(wing) });
-
-    List<AttributeValue> infoSlides = new List<AttributeValue>();
-    if (debate.infoSlides is not null) 
-      foreach (string infoSlide in debate.infoSlides) 
-        infoSlides.Add(new AttributeValue { S = infoSlide });
-    else infoSlides.Add(new AttributeValue { S = "" });
-
-    Dictionary<string, AttributeValue> og = GetDuoDictionary(debate.og);
-    Dictionary<string, AttributeValue> oo = GetDuoDictionary(debate.oo);
-    Dictionary<string, AttributeValue> cg = GetDuoDictionary(debate.cg);
-    Dictionary<string, AttributeValue> co = GetDuoDictionary(debate.co);
+    Dictionary<string, AttributeValue> chair = GetMemberDictionary(debate.chair);
 
     Dictionary<string, AttributeValue> createDebateItem = new Dictionary<string, AttributeValue>() { 
       { "id", new AttributeValue { S = id } }, 
-      { "pm", new AttributeValue { M = pm } },
-      { "lo", new AttributeValue { M = lo } },
-      { "dpm", new AttributeValue { M = dpm } },
-      { "dlo", new AttributeValue { M = dlo } },
-      { "mg", new AttributeValue { M = mg } },
-      { "mo", new AttributeValue { M = mo } },
-      { "gw", new AttributeValue { M = gw } },
-      { "ow", new AttributeValue { M = ow } },
-      { "pmSp", new AttributeValue { N = debate.pmSp.ToString() } },
-      { "loSp", new AttributeValue { N = debate.loSp.ToString() } },
-      { "dpmSp", new AttributeValue { N = debate.dpmSp.ToString() } },
-      { "dloSp", new AttributeValue { N = debate.dloSp.ToString() } },
-      { "mgSp", new AttributeValue { N = debate.mgSp.ToString() } },
-      { "moSp", new AttributeValue { N = debate.moSp.ToString() } },
-      { "gwSp", new AttributeValue { N = debate.gwSp.ToString() } },
-      { "owSp", new AttributeValue { N = debate.owSp.ToString() } },
-      { "og", new AttributeValue { M = og } },
-      { "oo", new AttributeValue { M = oo } },
-      { "cg", new AttributeValue { M = cg } },
-      { "co", new AttributeValue { M = co } },
-      { "chair", new AttributeValue { M = chair } },
-      { "wings", new AttributeValue { L = wings } },
-      { "motion", new AttributeValue { S = debate.motion } },
-      { "infoSlides", new AttributeValue { L = infoSlides } },
       { "date", new AttributeValue { S = debate.date } },
-      { "thematic", new AttributeValue { S = debate.thematic } },
-      { "prefix", new AttributeValue { S = debate.prefix } },
-      { "tournament", new AttributeValue { S = debate.tournament } },
+      { "time", new AttributeValue { S = debate.time } },
+      { "style", new AttributeValue { S = debate.style.ToString() } },
+      { "venue", new AttributeValue { S = debate.venue.ToString() } },
+      { "motionType", new AttributeValue { S = debate.motionType.ToString() } },
+      { "motionTheme", new AttributeValue { S = debate.motionTheme.ToString() } },
+      { "motion", new AttributeValue { S = debate.motion } },
+      { "chair", new AttributeValue { M = chair } },
     };
+
+    if (debate.infoSlides is not null) {
+      List<AttributeValue> infoSlides = new List<AttributeValue>();
+      foreach (string infoSlide in debate.infoSlides) 
+        infoSlides.Add(new AttributeValue { S = infoSlide });
+
+      createDebateItem.Add("infoSlides", new AttributeValue { L = infoSlides });
+    }
+
+    if (debate.debaters is not null) {
+      List<AttributeValue> debaters = new List<AttributeValue>();
+      foreach (Member debater in debate.debaters) 
+        debaters.Add(new AttributeValue { M = GetMemberDictionary(debater) });
+
+      createDebateItem.Add("debaters", new AttributeValue { L = debaters });
+    }
+
+    if (debate.wings is not null) {
+      List<AttributeValue> wings = new List<AttributeValue>();
+      foreach (Member wing in debate.wings) 
+        wings.Add(new AttributeValue { M = GetMemberDictionary(wing) });
+
+      createDebateItem.Add("wings", new AttributeValue { L = wings });
+    }
+
+    if (debate.sps is not null) {
+      List<AttributeValue> sps = new List<AttributeValue>();
+      foreach (int sp in debate.sps) 
+        sps.Add(new AttributeValue { N = sp.ToString() });
+
+      createDebateItem.Add("sps", new AttributeValue { L = sps });
+    }
     
     PutItemRequest createDebateRequest = new PutItemRequest {
       TableName = table,
@@ -86,35 +74,19 @@ public class DebatesService {
     await client.PutItemAsync(createDebateRequest);
 
     return new Debate(
-      id, 
-      debate.pm, 
-      debate.lo,
-      debate.dpm,
-      debate.dlo,
-      debate.mg,
-      debate.mo,
-      debate.gw,
-      debate.ow,
-      debate.pmSp,
-      debate.loSp,
-      debate.dpmSp,
-      debate.dloSp,
-      debate.mgSp,
-      debate.moSp,
-      debate.gwSp,
-      debate.owSp,
-      debate.og,
-      debate.oo,
-      debate.cg,
-      debate.co,
-      debate.chair,
-      debate.wings,
+      id,
+      debate.date,
+      debate.time,
+      debate.style,
+      debate.venue,
+      debate.motionType,
+      debate.motionTheme,
       debate.motion,
       debate.infoSlides,
-      debate.date,
-      debate.thematic,
-      debate.prefix,
-      debate.tournament
+      debate.debaters,
+      debate.sps,
+      debate.chair,
+      debate.wings
     );
   }
 
@@ -150,37 +122,11 @@ public class DebatesService {
     return debates;
   }
 
-  public Dictionary<string, AttributeValue> GetDebaterDictionary(Debater? debater) {
-    if (debater is not null) 
-      return new Dictionary<string, AttributeValue>() {
-        { "id", new AttributeValue { S = debater.id } },
-        { "name", new AttributeValue { S = debater.name } }
-      };
-
+  public Dictionary<string, AttributeValue> GetMemberDictionary(Member member) {
     return new Dictionary<string, AttributeValue>() {
-      { "id", new AttributeValue { S = "" } },
-      { "name", new AttributeValue { S = "" } }
-    };
-  }
-
-  public Dictionary<string, AttributeValue> GetJudgeDictionary(Judge? judge) {
-    if (judge is not null) 
-      return new Dictionary<string, AttributeValue>() {
-        { "id", new AttributeValue { S = judge.id } },
-        { "name", new AttributeValue { S = judge.name } },
-      };
-
-    return new Dictionary<string, AttributeValue>() {
-      { "id", new AttributeValue { S = "" } },
-      { "name", new AttributeValue { S = "" } },
-    };
-  }
-
-  public Dictionary<string, AttributeValue> GetDuoDictionary(Duo duo) {
-    return new Dictionary<string, AttributeValue>() {
-      { "id", new AttributeValue { S = duo.id } },
-      { "a", new AttributeValue { M = GetDebaterDictionary(duo.a) } },
-      { "b", new AttributeValue { M = GetDebaterDictionary(duo.b) } },
+      { "id", new AttributeValue { S = member.id } },
+      { "name", new AttributeValue { S = member.name } },
+      { "society", new AttributeValue { S = member.society.ToString() } }
     };
   }
 }
