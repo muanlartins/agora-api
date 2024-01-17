@@ -5,5 +5,6 @@ using System.Text.Json.Serialization;
 public enum MotionType {
   policy,
   agent,
-  value
+  value,
+  other
 }

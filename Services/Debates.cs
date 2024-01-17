@@ -65,6 +65,12 @@ public class DebatesService {
 
       createDebateItem.Add("sps", new AttributeValue { L = sps });
     }
+
+    List<AttributeValue> points = new List<AttributeValue>();
+    foreach (int point in debate.points) 
+      points.Add(new AttributeValue { N = point.ToString() });
+
+    createDebateItem.Add("points", new AttributeValue { L = points });
     
     PutItemRequest createDebateRequest = new PutItemRequest {
       TableName = table,
@@ -84,6 +90,7 @@ public class DebatesService {
       debate.motion,
       debate.infoSlides,
       debate.debaters,
+      debate.points,
       debate.sps,
       debate.chair,
       debate.wings

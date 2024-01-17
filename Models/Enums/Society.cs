@@ -14,4 +14,6 @@ public enum Society {
   sds,
   uspd,
   sdp,
+  tribuna,
+  other
 }

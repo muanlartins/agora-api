@@ -11,5 +11,6 @@ public enum MotionTheme {
   politics,
   technology,
   religion,
-  popCulture
+  popCulture,
+  other
 }
