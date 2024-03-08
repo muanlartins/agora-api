@@ -34,7 +34,7 @@ public class DebatesService {
       { "chair", new AttributeValue { M = chair } },
     };
 
-    if (debate.infoSlides is not null) {
+    if (debate.infoSlides is not null && debate.infoSlides.Length > 0) {
       List<AttributeValue> infoSlides = new List<AttributeValue>();
       foreach (string infoSlide in debate.infoSlides) 
         infoSlides.Add(new AttributeValue { S = infoSlide });
@@ -42,7 +42,7 @@ public class DebatesService {
       createDebateItem.Add("infoSlides", new AttributeValue { L = infoSlides });
     }
 
-    if (debate.debaters is not null) {
+    if (debate.debaters is not null && debate.debaters.Length > 0) {
       List<AttributeValue> debaters = new List<AttributeValue>();
       foreach (Member debater in debate.debaters) 
         debaters.Add(new AttributeValue { M = GetMemberDictionary(debater) });
@@ -50,7 +50,7 @@ public class DebatesService {
       createDebateItem.Add("debaters", new AttributeValue { L = debaters });
     }
 
-    if (debate.wings is not null) {
+    if (debate.wings is not null && debate.wings.Length > 0) {
       List<AttributeValue> wings = new List<AttributeValue>();
       foreach (Member wing in debate.wings) 
         wings.Add(new AttributeValue { M = GetMemberDictionary(wing) });
@@ -58,7 +58,7 @@ public class DebatesService {
       createDebateItem.Add("wings", new AttributeValue { L = wings });
     }
 
-    if (debate.sps is not null) {
+    if (debate.sps is not null && debate.sps.Length > 0) {
       List<AttributeValue> sps = new List<AttributeValue>();
       foreach (int sp in debate.sps) 
         sps.Add(new AttributeValue { N = sp.ToString() });
@@ -66,12 +66,14 @@ public class DebatesService {
       createDebateItem.Add("sps", new AttributeValue { L = sps });
     }
 
-    List<AttributeValue> points = new List<AttributeValue>();
-    foreach (int point in debate.points) 
-      points.Add(new AttributeValue { N = point.ToString() });
+    if (debate.points is not null && debate.points.Length > 0) {
+      List<AttributeValue> points = new List<AttributeValue>();
+      foreach (int point in debate.points) 
+        points.Add(new AttributeValue { N = point.ToString() });
 
-    createDebateItem.Add("points", new AttributeValue { L = points });
-    
+      createDebateItem.Add("points", new AttributeValue { L = points });
+    }
+
     PutItemRequest createDebateRequest = new PutItemRequest {
       TableName = table,
       Item = createDebateItem,

@@ -9,7 +9,7 @@ public record Debate(
   string motion,
   string[]? infoSlides,
   Member[]? debaters,
-  int[] points,
+  int[]? points,
   int[]? sps,
   Member chair,
   Member[]? wings
