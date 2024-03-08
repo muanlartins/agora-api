@@ -64,14 +64,9 @@ public class AuthService {
   }
 
   private ClaimsIdentity GenerateClaimsIdentity(User user) {
-    return user.fullName is not null && user.nickname is not null ?
-      new ClaimsIdentity(new Claim[] {
-        new Claim("fullName", user.fullName),
-        new Claim("nickname", user.nickname),
-        new Claim("login", user.login),
-      }) : 
-      new ClaimsIdentity(new Claim[] {
-        new Claim("login", user.login),
-      });
+    return new ClaimsIdentity(new Claim[] {
+      new Claim("login", user.login),
+      new Claim("role", user.role.ToString()),
+    });
   }
 }

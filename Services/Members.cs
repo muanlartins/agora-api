@@ -1,3 +1,4 @@
+using System.Net;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
@@ -49,5 +50,52 @@ public class MembersService {
       members.Add(JsonConvert.DeserializeObject<Member>(Document.FromAttributeMap(member).ToJsonPretty())!);
 
     return members;
+  }
+
+  public async Task<bool> UpdateMember(Member updatedMember) {
+    Dictionary<string, AttributeValue> updateMemberKey = new Dictionary<string, AttributeValue>() { 
+      { "id", new AttributeValue { S = updatedMember.id } } 
+    };
+
+    Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
+      {"#N", "name"},
+      {"#S", "society"}
+    };
+
+    Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
+        { ":n", new AttributeValue { S = updatedMember.name } },
+        { ":s", new AttributeValue { S = updatedMember.society.ToString() } }
+    };
+
+    string updateExpression = "SET #N = :n, #S = :s";
+    
+    UpdateItemRequest updateMemberRequest = new UpdateItemRequest {
+      TableName = table,
+      Key = updateMemberKey,
+      ExpressionAttributeNames = expressionAttributeNames,
+      ExpressionAttributeValues = expressionAttributeValues,
+      UpdateExpression = updateExpression,
+    };
+
+    UpdateItemResponse updateMemberResponse = await client.UpdateItemAsync(updateMemberRequest);
+
+    if (updateMemberResponse.HttpStatusCode.Equals(HttpStatusCode.OK)) return true;
+    return false;
+  }
+
+  public async Task<bool> DeleteMember(string id) {
+    Dictionary<string, AttributeValue> deleteMemberKey = new Dictionary<string, AttributeValue>() { 
+      { "id", new AttributeValue { S = id } } 
+    };
+
+    DeleteItemRequest deleteMemberRequest = new DeleteItemRequest {
+        TableName = table,
+        Key = deleteMemberKey,
+    };
+
+    var deleteMemberResponse = await client.DeleteItemAsync(deleteMemberRequest);
+
+    if (deleteMemberResponse.HttpStatusCode.Equals(HttpStatusCode.OK)) return true;
+    return false;
   }
 }

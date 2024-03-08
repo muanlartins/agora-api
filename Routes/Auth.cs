@@ -16,9 +16,7 @@ public static class AuthRoute {
     });
 
     app.MapGet("/auth/refresh", async (HttpRequest request) => {
-      User? user = authService.GetUserByRequest(request);
-
-      if (user is null) return Results.BadRequest("Token de autorização inválido.");
+      User user = (User)request.HttpContext.Items["user"]!;
 
       User? updatedUser = await usersService.GetUser(user.login);
 

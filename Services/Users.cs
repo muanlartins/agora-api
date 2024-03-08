@@ -4,7 +4,6 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Runtime;
 using Newtonsoft.Json;
-using System.Net;
 
 public class UsersService {
   public AmazonDynamoDBClient client;
@@ -64,37 +63,6 @@ public class UsersService {
     Document document = Document.FromAttributeMap(response.Item);
 
     return JsonConvert.DeserializeObject<User>(document.ToJsonPretty());
-  }
-
-  public async Task<bool> UpdateUser(User user, User updatedUser) {
-    Dictionary<string, AttributeValue> updateUserKey = new Dictionary<string, AttributeValue>() { 
-      { "login", new AttributeValue { S = user.login } } 
-    };
-
-    Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
-      {"#F", "fullName"},
-      {"#N", "nickname"}
-    };
-
-    Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
-        { ":f", new AttributeValue { S = updatedUser.fullName ?? "" } },
-        { ":n", new AttributeValue { S = updatedUser.nickname ?? "" } }
-    };
-
-    string updateExpression = "SET #F = :f, #N = :n";
-    
-    UpdateItemRequest updateUserRequest = new UpdateItemRequest {
-      TableName = table,
-      Key = updateUserKey,
-      ExpressionAttributeNames = expressionAttributeNames,
-      ExpressionAttributeValues = expressionAttributeValues,
-      UpdateExpression = updateExpression,
-    };
-
-    UpdateItemResponse updateUserResponse = await client.UpdateItemAsync(updateUserRequest);
-
-    if (updateUserResponse.HttpStatusCode.Equals(HttpStatusCode.OK)) return true;
-    return false;
   }
 
   public async Task<bool> VerifyLoginAvailablity(string login) {
