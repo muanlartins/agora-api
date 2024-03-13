@@ -28,7 +28,8 @@ builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 WebApplication app = builder.Build();
 
 app.Use(async (context, next) => {
-  if (context.Request.Path == "/auth/login") {
+  if (HttpMethod.Options.ToString() == context.Request.Method.ToString() || context.Request.Path == "/auth/login") {
+
     await next.Invoke();
     return;
   }
