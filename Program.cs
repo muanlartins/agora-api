@@ -19,7 +19,7 @@ builder.Services.AddCors(
   policyBuilder => 
     policyBuilder.AddDefaultPolicy(
       policy =>
-        policy.WithOrigins("*").AllowAnyOrigin().AllowAnyHeader()
+        policy.WithOrigins("*").AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()
     )
 );
 
