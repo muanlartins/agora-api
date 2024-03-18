@@ -12,5 +12,6 @@ public record Debate(
   int[]? points,
   int[]? sps,
   Member chair,
-  Member[]? wings
+  Member[]? wings,
+  string? tournament
 );

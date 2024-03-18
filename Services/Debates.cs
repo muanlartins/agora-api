@@ -75,6 +75,10 @@ public class DebatesService {
       createDebateItem.Add("points", new AttributeValue { L = points });
     }
 
+    if (debate.tournament is not null) {
+      createDebateItem.Add("tournament", new AttributeValue { S = debate.tournament });
+    }
+
     PutItemRequest createDebateRequest = new PutItemRequest {
       TableName = table,
       Item = createDebateItem,
@@ -96,7 +100,8 @@ public class DebatesService {
       debate.points,
       debate.sps,
       debate.chair,
-      debate.wings
+      debate.wings,
+      debate.tournament
     );
   }
 
@@ -204,6 +209,11 @@ public class DebatesService {
       expressionAttributeValues.Add(":points", new AttributeValue { L = points });
     }
 
+    if (updatedDebate.tournament is not null) {
+      expressionAttributeNames.Add("#tournament", "tournament");
+      expressionAttributeValues.Add(":tournament", new AttributeValue { S = updatedDebate.tournament });
+    }
+
     string updateExpression = "SET #date = :date, #time = :time, #style = :style, #venue = :venue, #motionType = :motionType, #motionTheme = :motionTheme, #motion = :motion, #chair = :chair";
 
     if (updatedDebate.infoSlides is not null && updatedDebate.infoSlides.Length > 0) updateExpression += ", #infoSlides = :infoSlides";
@@ -211,6 +221,7 @@ public class DebatesService {
     if (updatedDebate.wings is not null && updatedDebate.wings.Length > 0) updateExpression += ", #wings = :wings";
     if (updatedDebate.sps is not null && updatedDebate.sps.Length > 0) updateExpression += ", #sps = :sps";
     if (updatedDebate.points is not null && updatedDebate.points.Length > 0) updateExpression += ", #points = :points";
+    if (updatedDebate.tournament is not null) updateExpression += ", #tournament = :tournament";
     
     UpdateItemRequest updateDebateRequest = new UpdateItemRequest {
       TableName = table,
