@@ -25,6 +25,7 @@ public class MembersService {
       { "id", new AttributeValue { S = id } }, 
       { "name", new AttributeValue { S = member.name } },
       { "society", new AttributeValue { S = member.society.ToString() } },
+      { "isTrainee", new AttributeValue { BOOL = member.isTrainee } },
     };
     
     PutItemRequest createMemberRequest = new PutItemRequest {
@@ -34,7 +35,7 @@ public class MembersService {
 
     await client.PutItemAsync(createMemberRequest);
 
-    return new Member(id, member.name, member.society);
+    return new Member(id, member.name, member.society, member.isTrainee);
   }
 
   public async Task<List<Member>> GetAllMembers() {
@@ -59,15 +60,17 @@ public class MembersService {
 
     Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
       {"#N", "name"},
-      {"#S", "society"}
+      {"#S", "society"},
+      { "#IT", "isTrainee"},
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
         { ":n", new AttributeValue { S = updatedMember.name } },
-        { ":s", new AttributeValue { S = updatedMember.society.ToString() } }
+        { ":s", new AttributeValue { S = updatedMember.society.ToString() } },
+        { ":it", new AttributeValue { BOOL = updatedMember.isTrainee } }
     };
 
-    string updateExpression = "SET #N = :n, #S = :s";
+    string updateExpression = "SET #N = :n, #S = :s, #IT = :it";
     
     UpdateItemRequest updateMemberRequest = new UpdateItemRequest {
       TableName = table,
@@ -97,5 +100,22 @@ public class MembersService {
 
     if (deleteMemberResponse.HttpStatusCode.Equals(HttpStatusCode.OK)) return true;
     return false;
+  }
+
+  public async Task<Member?> GetMember(string id) {
+    Dictionary<string, AttributeValue> Key = new Dictionary<string, AttributeValue>() { 
+      { "id", new AttributeValue { S = id } } 
+    };
+    
+    GetItemRequest request = new GetItemRequest {
+      TableName = table,
+      Key = Key,
+    };
+
+    GetItemResponse response = await client.GetItemAsync(request);
+
+    if (!response.IsItemSet) return null;
+
+    return JsonConvert.DeserializeObject<Member>(Document.FromAttributeMap(response.Item).ToJsonPretty());
   }
 }

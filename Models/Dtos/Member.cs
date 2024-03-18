@@ -1,1 +1,1 @@
-public record Member(string id, string name, Society society);
+public record Member(string id, string name, Society society, bool isTrainee);

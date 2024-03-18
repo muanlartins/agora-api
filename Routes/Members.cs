@@ -17,6 +17,14 @@ public static class MembersRoute {
       return Results.Ok(members);
     });
 
+    app.MapGet("/member", async (HttpRequest request, string id) => {
+      Member? member = await membersService.GetMember(id);
+
+      if (member is null) return Results.BadRequest("Não foi possível encontrar o membro.");
+
+      return Results.Ok(member);
+    });
+
     app.MapPut("/member", async (HttpRequest request) => {
       using (StreamReader r = new StreamReader(request.Body)) {
         string bodyString = await r.ReadToEndAsync();
