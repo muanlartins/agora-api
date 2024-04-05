@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 public static class MembersRoute {
@@ -36,6 +37,18 @@ public static class MembersRoute {
         if (updated) return Results.Ok("Membro atualizado com sucesso.");
         return Results.BadRequest("Não foi possível atualizar o membro.");
       }
+    });
+
+    app.MapPost("/member/pfp", async (HttpContext context) => {
+      IFormFile file = context.Request.Form.Files[0];
+
+      using (MemoryStream stream = new MemoryStream()) {
+        await file.CopyToAsync(stream);
+
+        await membersService.UploadMemberPfp(file.FileName, stream);
+      }
+
+      return Results.Ok();
     });
 
     app.MapDelete("/member/{id}", async (HttpRequest request, string id) => {

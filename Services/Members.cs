@@ -4,18 +4,23 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
+using Amazon.S3;
+using Amazon.S3.Model;
+using Amazon.S3.Transfer;
 using Newtonsoft.Json;
 
 public class MembersService {
-  public AmazonDynamoDBClient client;
+  public AmazonDynamoDBClient dynamo;
   public string table;
+  public AmazonS3Client s3;
   public MembersService(WebApplicationBuilder builder) {
     table = "members";
     BasicAWSCredentials credentials = new BasicAWSCredentials(
       builder.Configuration["AWS:AccessKey"], 
       builder.Configuration["AWS:SecretKey"]
     );
-    client = new AmazonDynamoDBClient(credentials, RegionEndpoint.SAEast1);
+    dynamo = new AmazonDynamoDBClient(credentials, RegionEndpoint.SAEast1);
+    s3 = new AmazonS3Client(credentials, RegionEndpoint.SAEast1);
   }
 
   public async Task<Member> CreateMember(Member member) {
@@ -33,7 +38,7 @@ public class MembersService {
       Item = createMemberItem,
     };
 
-    await client.PutItemAsync(createMemberRequest);
+    await dynamo.PutItemAsync(createMemberRequest);
 
     return new Member(id, member.name, member.society, member.isTrainee);
   }
@@ -43,7 +48,7 @@ public class MembersService {
       TableName = table
     };
 
-    ScanResponse response = await client.ScanAsync(getAllMembersRequest);
+    ScanResponse response = await dynamo.ScanAsync(getAllMembersRequest);
 
     List<Member> members = new List<Member>();
 
@@ -80,7 +85,7 @@ public class MembersService {
       UpdateExpression = updateExpression,
     };
 
-    UpdateItemResponse updateMemberResponse = await client.UpdateItemAsync(updateMemberRequest);
+    UpdateItemResponse updateMemberResponse = await dynamo.UpdateItemAsync(updateMemberRequest);
 
     if (updateMemberResponse.HttpStatusCode.Equals(HttpStatusCode.OK)) return true;
     return false;
@@ -96,7 +101,7 @@ public class MembersService {
         Key = deleteMemberKey,
     };
 
-    var deleteMemberResponse = await client.DeleteItemAsync(deleteMemberRequest);
+    var deleteMemberResponse = await dynamo.DeleteItemAsync(deleteMemberRequest);
 
     if (deleteMemberResponse.HttpStatusCode.Equals(HttpStatusCode.OK)) return true;
     return false;
@@ -112,10 +117,20 @@ public class MembersService {
       Key = Key,
     };
 
-    GetItemResponse response = await client.GetItemAsync(request);
+    GetItemResponse response = await dynamo.GetItemAsync(request);
 
     if (!response.IsItemSet) return null;
 
     return JsonConvert.DeserializeObject<Member>(Document.FromAttributeMap(response.Item).ToJsonPretty());
+  }
+
+  public async Task<bool> UploadMemberPfp(string fileName, MemoryStream fileStream) {
+    TransferUtility fileTransferUtility = new TransferUtility(s3);
+
+    string fileKey = $"assets/pfps/{fileName}";
+
+    await fileTransferUtility.UploadAsync(fileStream, "agorasdufrj", fileKey);
+
+    return true;
   }
 }
