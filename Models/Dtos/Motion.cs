@@ -3,7 +3,10 @@ public record Motion(
     MotionType type,
     string infoSlide,
     string text,
-    MotionTheme theme, 
+    MotionTheme theme,
     string? tournament,
     string? round
-);
+)
+{
+    internal readonly string Id;
+}
