@@ -57,5 +57,6 @@ AuthRoute.GetRoutes(app, builder);
 UsersRoute.GetRoutes(app, builder);
 MembersRoute.GetRoutes(app, builder);
 DebatesRoute.GetRoutes(app, builder);
+ArticlesRoute.GetRoutes(app, builder);
 
 app.Run();
