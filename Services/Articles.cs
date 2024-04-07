@@ -27,6 +27,7 @@ public class ArticlesService {
       { "id", new AttributeValue { S = id } }, 
       { "title", new AttributeValue { S = article.title } },
       { "content", new AttributeValue { S = article.content } },
+      { "tag", new AttributeValue { S = article.tag } },
       { "authorId", new AttributeValue { S = article.authorId } },
     };
     
@@ -37,7 +38,7 @@ public class ArticlesService {
 
     await dynamo.PutItemAsync(createArticleRequest);
 
-    return new Article(id, article.title, article.content, article.authorId);
+    return new Article(id, article.title, article.content, article.tag, article.authorId);
   }
 
   public async Task<List<Article>> GetAllArticles() {
@@ -63,16 +64,18 @@ public class ArticlesService {
     Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
       {"#title", "title"},
       {"#content", "content"},
+      {"#tag", "tag"},
       {"#authorId", "authorId"},
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
         { ":title", new AttributeValue { S = updatedArticle.title } },
         { ":content", new AttributeValue { S = updatedArticle.content } },
+        { ":tag", new AttributeValue { S = updatedArticle.tag } },
         { ":authorId", new AttributeValue { S = updatedArticle.authorId } },
     };
 
-    string updateExpression = "SET #title = :title, #content = :content, #authorId = :authorId";
+    string updateExpression = "SET #title = :title, #content = :content, #tag = :tag, #authorId = :authorId";
     
     UpdateItemRequest updateArticleRequest = new UpdateItemRequest {
       TableName = table,
