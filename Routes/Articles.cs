@@ -34,7 +34,7 @@ public static class ArticlesRoute {
 
         bool updated = await articlesService.UpdateArticle(updatedArticle);
 
-        if (updated) return Results.Ok("Membro atualizado com sucesso.");
+        if (updated) return Results.Ok("Artigo atualizado com sucesso.");
         return Results.BadRequest("Não foi possível atualizar o artigo.");
       }
     });
@@ -42,7 +42,7 @@ public static class ArticlesRoute {
     app.MapDelete("/article/{id}", async (HttpRequest request, string id) => {
       bool updated = await articlesService.DeleteArticle(id);
 
-      if (updated) return Results.Ok("Membro deletado com sucesso.");
+      if (updated) return Results.Ok("Artigo deletado com sucesso.");
       return Results.BadRequest("Não foi possível deletar o artigo.");
     });
   }
