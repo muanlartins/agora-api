@@ -146,7 +146,7 @@ public class MembersService {
       { ":hp", new AttributeValue { BOOL = true } }
     };
 
-    string updateExpression = "#HP = :hp";
+    string updateExpression = "SET #HP = :hp";
     
     UpdateItemRequest updateMemberRequest = new UpdateItemRequest {
       TableName = table,
