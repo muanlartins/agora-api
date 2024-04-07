@@ -31,6 +31,7 @@ public class MembersService {
       { "name", new AttributeValue { S = member.name } },
       { "society", new AttributeValue { S = member.society.ToString() } },
       { "isTrainee", new AttributeValue { BOOL = member.isTrainee } },
+      { "hasPfp", new AttributeValue { BOOL = member.hasPfp } },
     };
     
     PutItemRequest createMemberRequest = new PutItemRequest {
@@ -40,7 +41,7 @@ public class MembersService {
 
     await dynamo.PutItemAsync(createMemberRequest);
 
-    return new Member(id, member.name, member.society, member.isTrainee);
+    return new Member(id, member.name, member.society, member.isTrainee, member.hasPfp);
   }
 
   public async Task<List<Member>> GetAllMembers() {
@@ -67,15 +68,17 @@ public class MembersService {
       {"#N", "name"},
       {"#S", "society"},
       { "#IT", "isTrainee"},
+      { "#HP", "hasPfp"},
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
         { ":n", new AttributeValue { S = updatedMember.name } },
         { ":s", new AttributeValue { S = updatedMember.society.ToString() } },
-        { ":it", new AttributeValue { BOOL = updatedMember.isTrainee } }
+        { ":it", new AttributeValue { BOOL = updatedMember.isTrainee } },
+        { ":hp", new AttributeValue { BOOL = updatedMember.hasPfp } }
     };
 
-    string updateExpression = "SET #N = :n, #S = :s, #IT = :it";
+    string updateExpression = "SET #N = :n, #S = :s, #IT = :it, #HP = :hp";
     
     UpdateItemRequest updateMemberRequest = new UpdateItemRequest {
       TableName = table,
@@ -130,6 +133,30 @@ public class MembersService {
     string fileKey = $"assets/pfps/{fileName}";
 
     await fileTransferUtility.UploadAsync(fileStream, "agorasdufrj", fileKey);
+
+    Dictionary<string, AttributeValue> updateMemberKey = new Dictionary<string, AttributeValue>() { 
+      { "id", new AttributeValue { S = fileName } } 
+    };
+
+    Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
+      { "#HP", "hasPfp"},
+    };
+
+    Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
+      { ":hp", new AttributeValue { BOOL = true } }
+    };
+
+    string updateExpression = "#HP = :hp";
+    
+    UpdateItemRequest updateMemberRequest = new UpdateItemRequest {
+      TableName = table,
+      Key = updateMemberKey,
+      ExpressionAttributeNames = expressionAttributeNames,
+      ExpressionAttributeValues = expressionAttributeValues,
+      UpdateExpression = updateExpression,
+    };
+
+    await dynamo.UpdateItemAsync(updateMemberRequest);
 
     return true;
   }
