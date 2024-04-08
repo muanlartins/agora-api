@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using Amazon;
 using Amazon.DynamoDBv2;
@@ -23,12 +24,17 @@ public class ArticlesService {
   public async Task<Article> CreateArticle(Article article) {
     string id = Guid.NewGuid().ToString();
 
+    string createdAt = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
+    string updatedAt = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
+
     Dictionary<string, AttributeValue> createArticleItem = new Dictionary<string, AttributeValue>() { 
       { "id", new AttributeValue { S = id } }, 
       { "title", new AttributeValue { S = article.title } },
       { "content", new AttributeValue { S = article.content } },
       { "tag", new AttributeValue { S = article.tag } },
       { "authorId", new AttributeValue { S = article.authorId } },
+      { "createdAt", new AttributeValue { S = createdAt } },
+      { "updatedAt", new AttributeValue { S = updatedAt } },
     };
     
     PutItemRequest createArticleRequest = new PutItemRequest {
@@ -38,7 +44,7 @@ public class ArticlesService {
 
     await dynamo.PutItemAsync(createArticleRequest);
 
-    return new Article(id, article.title, article.content, article.tag, article.authorId);
+    return new Article(id, article.title, article.content, article.tag, article.authorId, createdAt, updatedAt);
   }
 
   public async Task<List<Article>> GetAllArticles() {
@@ -57,6 +63,8 @@ public class ArticlesService {
   }
 
   public async Task<bool> UpdateArticle(Article updatedArticle) {
+    string updatedAt = DateTime.UtcNow.ToString("o", CultureInfo.InvariantCulture);
+
     Dictionary<string, AttributeValue> updateArticleKey = new Dictionary<string, AttributeValue>() { 
       { "id", new AttributeValue { S = updatedArticle.id } } 
     };
@@ -66,6 +74,7 @@ public class ArticlesService {
       {"#content", "content"},
       {"#tag", "tag"},
       {"#authorId", "authorId"},
+      {"#updatedAt", "updatedAt"},
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
@@ -73,9 +82,10 @@ public class ArticlesService {
         { ":content", new AttributeValue { S = updatedArticle.content } },
         { ":tag", new AttributeValue { S = updatedArticle.tag } },
         { ":authorId", new AttributeValue { S = updatedArticle.authorId } },
+        { ":updatedAt", new AttributeValue { S = updatedAt } },
     };
 
-    string updateExpression = "SET #title = :title, #content = :content, #tag = :tag, #authorId = :authorId";
+    string updateExpression = "SET #title = :title, #content = :content, #tag = :tag, #authorId = :authorId, #updatedAt = :updatedAt";
     
     UpdateItemRequest updateArticleRequest = new UpdateItemRequest {
       TableName = table,
