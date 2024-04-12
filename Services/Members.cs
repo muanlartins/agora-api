@@ -32,6 +32,7 @@ public class MembersService {
       { "society", new AttributeValue { S = member.society.ToString() } },
       { "isTrainee", new AttributeValue { BOOL = member.isTrainee } },
       { "hasPfp", new AttributeValue { BOOL = member.hasPfp } },
+      { "blocked", new AttributeValue { BOOL = member.blocked } },
     };
     
     PutItemRequest createMemberRequest = new PutItemRequest {
@@ -41,7 +42,7 @@ public class MembersService {
 
     await dynamo.PutItemAsync(createMemberRequest);
 
-    return new Member(id, member.name, member.society, member.isTrainee, member.hasPfp);
+    return new Member(id, member.name, member.society, member.isTrainee, member.hasPfp, member.blocked);
   }
 
   public async Task<List<Member>> GetAllMembers() {
@@ -69,16 +70,18 @@ public class MembersService {
       {"#S", "society"},
       { "#IT", "isTrainee"},
       { "#HP", "hasPfp"},
+      { "#B", "blocked"},
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
         { ":n", new AttributeValue { S = updatedMember.name } },
         { ":s", new AttributeValue { S = updatedMember.society.ToString() } },
         { ":it", new AttributeValue { BOOL = updatedMember.isTrainee } },
-        { ":hp", new AttributeValue { BOOL = updatedMember.hasPfp } }
+        { ":hp", new AttributeValue { BOOL = updatedMember.hasPfp } },
+        { ":b", new AttributeValue { BOOL = updatedMember.blocked } }
     };
 
-    string updateExpression = "SET #N = :n, #S = :s, #IT = :it, #HP = :hp";
+    string updateExpression = "SET #N = :n, #S = :s, #IT = :it, #HP = :hp, #B = :b";
     
     UpdateItemRequest updateMemberRequest = new UpdateItemRequest {
       TableName = table,
