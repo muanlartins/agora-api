@@ -4,7 +4,7 @@ public record Debate(
   string time,
   DebateStyle style,
   DebateVenue venue,
-  MotionType motionType,
+  string motionType,
   MotionTheme motionTheme,
   string motion,
   string[]? infoSlides,
