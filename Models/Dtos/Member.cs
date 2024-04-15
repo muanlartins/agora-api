@@ -1,1 +1,1 @@
-public record Member(string id, string name, Society society, bool isTrainee, bool hasPfp, bool blocked);
+public record Member(string id, string name, string society, bool isTrainee, bool hasPfp, bool blocked);
