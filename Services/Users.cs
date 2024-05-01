@@ -4,8 +4,11 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Runtime;
 using Newtonsoft.Json;
+using System.Security.Cryptography;
+using System.Text;
 
 public class UsersService {
+  WebApplicationBuilder builder;
   public AmazonDynamoDBClient client;
   public string table;
   public UsersService(WebApplicationBuilder builder) {
@@ -15,6 +18,7 @@ public class UsersService {
       builder.Configuration["AWS:SecretKey"]
     );
     client = new AmazonDynamoDBClient(credentials, RegionEndpoint.SAEast1);
+    this.builder = builder;
   }
 
   public async Task<bool?> CreateUser(Credentials credentials) {
@@ -94,10 +98,15 @@ public class UsersService {
 
     if (!response.IsItemSet) return false;
 
-    Document document = Document.FromAttributeMap(response.Item);
+    User user = JsonConvert.DeserializeObject<User>(Document.FromAttributeMap(response.Item).ToJsonPretty())!;
 
-    User user = JsonConvert.DeserializeObject<User>(document.ToJsonPretty())!;
+    string hmacKey = builder.Configuration["PasswordSalt"];
+    byte[] hmacKeyBytes = Encoding.UTF8.GetBytes(hmacKey);
+    HMACSHA256 hmac = new HMACSHA256(hmacKeyBytes);
+    byte[] passwordBytes = Encoding.UTF8.GetBytes(credentials.password);
+    byte[] encryptedPasswordBytes = hmac.ComputeHash(passwordBytes);
+    string encryptedPassword = BitConverter.ToString(encryptedPasswordBytes).Replace("-", "").ToLower();
 
-    return user.login.Equals(credentials.login) && user.password.Equals(credentials.password);
+    return user.login.Equals(credentials.login) && user.password.Equals(encryptedPassword);
   }
 }
