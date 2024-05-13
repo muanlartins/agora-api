@@ -16,6 +16,9 @@ public class AuthService {
     if (authorizationHeader is null) return null;
 
     string authorization = authorizationHeader[0];
+
+    if (authorization.Split(' ').Length < 2) return null;
+
     string token = authorization.Split(' ')[1];
 
     try {

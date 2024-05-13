@@ -28,8 +28,10 @@ builder.Services.AddAWSLambdaHosting(LambdaEventSource.HttpApi);
 WebApplication app = builder.Build();
 
 app.Use(async (context, next) => {
-  if (HttpMethod.Options.ToString() == context.Request.Method.ToString() || context.Request.Path == "/auth/login") {
-
+  if (
+    HttpMethod.Options.ToString() == context.Request.Method.ToString() || 
+    UtilsService.IsPathOpen(context.Request.Path)
+  ) {
     await next.Invoke();
     return;
   }
@@ -58,5 +60,6 @@ UsersRoute.GetRoutes(app, builder);
 MembersRoute.GetRoutes(app, builder);
 DebatesRoute.GetRoutes(app, builder);
 ArticlesRoute.GetRoutes(app, builder);
+ParticipantsRoute.GetRoutes(app, builder);
 
 app.Run();

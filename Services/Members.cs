@@ -135,7 +135,7 @@ public class MembersService {
 
     string fileKey = $"assets/pfps/{fileName}";
 
-    await fileTransferUtility.UploadAsync(fileStream, "agorasdufrj", fileKey);
+    await fileTransferUtility.UploadAsync(fileStream, "agoradebates.com", fileKey);
 
     Dictionary<string, AttributeValue> updateMemberKey = new Dictionary<string, AttributeValue>() { 
       { "id", new AttributeValue { S = fileName } } 
