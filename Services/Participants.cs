@@ -1,4 +1,5 @@
 
+using System.Net;
 using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
@@ -38,13 +39,15 @@ public class ParticipantsService {
   }
 
   public async Task<Participant> CreateParticipant(Participant participant) {
+    string id = Guid.NewGuid().ToString();
+
     Dictionary<string, AttributeValue> createParticipantItem = new Dictionary<string, AttributeValue>() { 
-      { "id", new AttributeValue { S = participant.id } }, 
+      { "id", new AttributeValue { S = id } }, 
       { "tournament", new AttributeValue { S = participant.tournament } }, 
       { "name", new AttributeValue { S = participant.name } },
       { "society", new AttributeValue { S = participant.society } },
       { "subscribedAt", new AttributeValue { S = participant.subscribedAt } },
-      { "hasPfp", new AttributeValue { BOOL = false } }
+      { "hasPfp", new AttributeValue { BOOL = participant.hasPfp } }
     };
     
     PutItemRequest createParticipantRequest = new PutItemRequest {
@@ -54,10 +57,70 @@ public class ParticipantsService {
 
     await dynamo.PutItemAsync(createParticipantRequest);
 
-    return participant;
+    return new Participant(
+      id, 
+      participant.tournament, 
+      participant.name, 
+      participant.society, 
+      participant.subscribedAt, 
+      false
+    );
   }
 
-    public async Task<bool> UploadParticipantPfp(string tournament, string fileName, MemoryStream fileStream) {
+  public async Task<bool> UpdateParticipant(Participant updatedParticipant) {
+    Dictionary<string, AttributeValue> updateParticipantKey = new Dictionary<string, AttributeValue>() { 
+      { "id", new AttributeValue { S = updatedParticipant.id } } 
+    };
+
+    Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
+      { "#T", "tournament" },
+      { "#N", "name" },
+      { "#S", "society" },
+      { "#SA", "subscribedAt" },
+      { "#HP", "hasPfp" },
+    };
+
+    Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
+        { ":t", new AttributeValue { S = updatedParticipant.tournament } },
+        { ":n", new AttributeValue { S = updatedParticipant.name } },
+        { ":s", new AttributeValue { S = updatedParticipant.society } },
+        { ":sa", new AttributeValue { S = updatedParticipant.subscribedAt } },
+        { ":hp", new AttributeValue { BOOL = updatedParticipant.hasPfp } }
+    };
+
+    string updateExpression = "SET #T = :t, #N = :n, #S = :s, #SA = :sa, #HP = :hp";
+    
+    UpdateItemRequest updateParticipantRequest = new UpdateItemRequest {
+      TableName = table,
+      Key = updateParticipantKey,
+      ExpressionAttributeNames = expressionAttributeNames,
+      ExpressionAttributeValues = expressionAttributeValues,
+      UpdateExpression = updateExpression,
+    };
+
+    UpdateItemResponse updateParticipantResponse = await dynamo.UpdateItemAsync(updateParticipantRequest);
+
+    if (updateParticipantResponse.HttpStatusCode.Equals(HttpStatusCode.OK)) return true;
+    return false;
+  }
+
+    public async Task<bool> DeleteParticipant(string id) {
+    Dictionary<string, AttributeValue> deleteParticipantKey = new Dictionary<string, AttributeValue>() { 
+      { "id", new AttributeValue { S = id } } 
+    };
+
+    DeleteItemRequest deleteParticipantRequest = new DeleteItemRequest {
+        TableName = table,
+        Key = deleteParticipantKey,
+    };
+
+    var deleteParticipantResponse = await dynamo.DeleteItemAsync(deleteParticipantRequest);
+
+    if (deleteParticipantResponse.HttpStatusCode.Equals(HttpStatusCode.OK)) return true;
+    return false;
+  }
+
+  public async Task<bool> UploadParticipantPfp(string tournament, string fileName, MemoryStream fileStream) {
     TransferUtility fileTransferUtility = new TransferUtility(s3);
 
     string fileKey = $"assets/participants/{tournament}/{fileName}";

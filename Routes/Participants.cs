@@ -1,4 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 public static class ParticipantsRoute {
   public static void GetRoutes(WebApplication app, WebApplicationBuilder builder) {
@@ -58,6 +59,38 @@ public static class ParticipantsRoute {
       );
 
       return await participantsService.GetAllParticipants();
+    });
+
+    app.MapPost("/participant", async (HttpRequest request) => {
+      using (StreamReader r = new StreamReader(request.Body)) {
+        string bodyString = await r.ReadToEndAsync();
+
+        Participant bodyParticipant = JsonConvert.DeserializeObject<Participant>(bodyString)!;
+
+        Participant createdParticipant = await participantsService.CreateParticipant(bodyParticipant);
+
+        return Results.Ok(createdParticipant);
+      }
+    });
+
+    app.MapPut("/participant", async (HttpRequest request) => {
+      using (StreamReader r = new StreamReader(request.Body)) {
+        string bodyString = await r.ReadToEndAsync();
+
+        Participant updatedParticipant = JsonConvert.DeserializeObject<Participant>(bodyString)!;
+
+        bool updated = await participantsService.UpdateParticipant(updatedParticipant);
+
+        if (updated) return Results.Ok("Membro atualizado com sucesso.");
+        return Results.BadRequest("Não foi possível atualizar o membro.");
+      }
+    });
+
+    app.MapDelete("/participant/{id}", async (HttpRequest request, string id) => {
+      bool deleted = await participantsService.DeleteParticipant(id);
+
+      if (deleted) return Results.Ok("Membro deletado com sucesso.");
+      return Results.BadRequest("Não foi possível deletar o membro.");
     });
 
     app.MapPost("/participant/{tournament}/pfp", async (HttpContext context, string tournament) => {

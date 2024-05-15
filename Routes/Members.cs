@@ -52,9 +52,9 @@ public static class MembersRoute {
     });
 
     app.MapDelete("/member/{id}", async (HttpRequest request, string id) => {
-      bool updated = await membersService.DeleteMember(id);
+      bool deleted = await membersService.DeleteMember(id);
 
-      if (updated) return Results.Ok("Membro deletado com sucesso.");
+      if (deleted) return Results.Ok("Membro deletado com sucesso.");
       return Results.BadRequest("Não foi possível deletar o membro.");
     });
   }
