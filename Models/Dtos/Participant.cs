@@ -4,5 +4,9 @@ public record Participant(
   string name,
   string society,
   string subscribedAt,
-  bool hasPfp
+  bool hasPfp,
+  string? duoId = null,
+  ParticipantCategory? category = null,
+  TournamentRole[]? roles = null,
+  bool? mvp = null
 );

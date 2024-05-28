@@ -47,8 +47,18 @@ public class ParticipantsService {
       { "name", new AttributeValue { S = participant.name } },
       { "society", new AttributeValue { S = participant.society } },
       { "subscribedAt", new AttributeValue { S = participant.subscribedAt } },
-      { "hasPfp", new AttributeValue { BOOL = participant.hasPfp } }
+      { "hasPfp", new AttributeValue { BOOL = participant.hasPfp } },
+      { "category", new AttributeValue { S = participant.category.ToString() } },
+      { "mvp", new AttributeValue { BOOL = participant.mvp ?? false }}
     };
+    
+    if (participant.roles is not null && participant.roles.Length > 0) {
+      List<AttributeValue> roles = new List<AttributeValue>();
+      foreach (TournamentRole role in participant.roles) 
+        roles.Add(new AttributeValue { S = role.ToString() });
+
+      createParticipantItem.Add("roles", new AttributeValue { L = roles });
+    }
     
     PutItemRequest createParticipantRequest = new PutItemRequest {
       TableName = table,
@@ -63,8 +73,60 @@ public class ParticipantsService {
       participant.name, 
       participant.society, 
       participant.subscribedAt, 
-      false
+      false,
+      category: participant.category,
+      roles: participant.roles,
+      mvp: participant.mvp ?? false
     );
+  }
+
+  public async Task<bool> RegisterDuo(string participantOneId, string participantTwoId) {
+    Dictionary<string, AttributeValue> updateParticipantOneKey = new Dictionary<string, AttributeValue>() { 
+      { "id", new AttributeValue { S = participantOneId } } 
+    };
+    Dictionary<string, AttributeValue> updateParticipantTwoKey = new Dictionary<string, AttributeValue>() { 
+      { "id", new AttributeValue { S = participantTwoId } } 
+    };
+
+    Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
+      { "#DI", "duoId" },
+    };
+
+    Dictionary<string,AttributeValue> expressionOneAttributeValues = new Dictionary<string, AttributeValue> {
+        { ":di", new AttributeValue { S = participantTwoId } },
+    };
+
+    Dictionary<string,AttributeValue> expressionTwoAttributeValues = new Dictionary<string, AttributeValue> {
+        { ":di", new AttributeValue { S = participantOneId } },
+    };
+
+    string updateExpression = "SET #DI = :di";
+
+    UpdateItemRequest updateParticipantOneRequest = new UpdateItemRequest {
+      TableName = table,
+      Key = updateParticipantOneKey,
+      ExpressionAttributeNames = expressionAttributeNames,
+      ExpressionAttributeValues = expressionOneAttributeValues,
+      UpdateExpression = updateExpression,
+    };
+
+    UpdateItemRequest updateParticipantTwoRequest = new UpdateItemRequest {
+      TableName = table,
+      Key = updateParticipantTwoKey,
+      ExpressionAttributeNames = expressionAttributeNames,
+      ExpressionAttributeValues = expressionTwoAttributeValues,
+      UpdateExpression = updateExpression,
+    };
+
+    UpdateItemResponse updateParticipantOneResponse = await dynamo.UpdateItemAsync(updateParticipantOneRequest);
+    UpdateItemResponse updateParticipantTwoResponse = await dynamo.UpdateItemAsync(updateParticipantTwoRequest);
+
+    if (
+      updateParticipantOneResponse.HttpStatusCode.Equals(HttpStatusCode.OK) && 
+      updateParticipantTwoResponse.HttpStatusCode.Equals(HttpStatusCode.OK)
+    ) return true;
+
+    return false;
   }
 
   public async Task<bool> UpdateParticipant(Participant updatedParticipant) {
@@ -78,6 +140,9 @@ public class ParticipantsService {
       { "#S", "society" },
       { "#SA", "subscribedAt" },
       { "#HP", "hasPfp" },
+      { "#C", "category" },
+      { "#M", "mvp" },
+      { "#DI", "duoId" },
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
@@ -85,10 +150,24 @@ public class ParticipantsService {
         { ":n", new AttributeValue { S = updatedParticipant.name } },
         { ":s", new AttributeValue { S = updatedParticipant.society } },
         { ":sa", new AttributeValue { S = updatedParticipant.subscribedAt } },
-        { ":hp", new AttributeValue { BOOL = updatedParticipant.hasPfp } }
+        { ":hp", new AttributeValue { BOOL = updatedParticipant.hasPfp } },
+        { ":c", new AttributeValue { S = updatedParticipant.category.ToString() } },
+        { ":m", new AttributeValue { BOOL = updatedParticipant.mvp ?? false } },
+        { ":di", new AttributeValue { S = updatedParticipant.duoId } },
     };
 
-    string updateExpression = "SET #T = :t, #N = :n, #S = :s, #SA = :sa, #HP = :hp";
+    if (updatedParticipant.roles is not null && updatedParticipant.roles.Length > 0) {
+      List<AttributeValue> roles = new List<AttributeValue>();
+      foreach (TournamentRole role in updatedParticipant.roles) 
+        roles.Add(new AttributeValue { S = role.ToString() });
+
+      expressionAttributeNames.Add("#R", "roles");
+      expressionAttributeValues.Add(":r", new AttributeValue { L = roles });
+    }
+
+    string updateExpression = "SET #T = :t, #N = :n, #S = :s, #SA = :sa, #HP = :hp, #C = :c, #M = :m, #DI = :di";
+
+    if (updatedParticipant.roles is not null && updatedParticipant.roles.Length > 0) updateExpression += ", #R = :r";
     
     UpdateItemRequest updateParticipantRequest = new UpdateItemRequest {
       TableName = table,

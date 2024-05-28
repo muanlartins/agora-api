@@ -61,6 +61,27 @@ public static class ParticipantsRoute {
       return await participantsService.GetAllParticipants();
     });
 
+    app.MapPost("/participants/duos", async (HttpRequest request) => {
+      using (StreamReader r = new StreamReader(request.Body)) {
+        string bodyString = await r.ReadToEndAsync();
+
+        List<List<string>> bodyDuos = JsonConvert.DeserializeObject<List<List<string>>>(bodyString)!;
+
+        bool ok = true;
+
+        foreach (List<string> duo in bodyDuos) {
+          string participantOneId = duo[0];
+          string participantTwoId = duo[1];
+
+          bool response = await participantsService.RegisterDuo(participantOneId, participantTwoId);
+
+          ok = response && ok;
+        }
+
+        return Results.Ok(ok);
+      }
+    });
+
     app.MapPost("/participant", async (HttpRequest request) => {
       using (StreamReader r = new StreamReader(request.Body)) {
         string bodyString = await r.ReadToEndAsync();
