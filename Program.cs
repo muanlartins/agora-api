@@ -61,5 +61,6 @@ MembersRoute.GetRoutes(app, builder);
 DebatesRoute.GetRoutes(app, builder);
 ArticlesRoute.GetRoutes(app, builder);
 ParticipantsRoute.GetRoutes(app, builder);
+TournamentsRoute.GetRoutes(app, builder);
 
 app.Run();

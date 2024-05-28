@@ -5,8 +5,6 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.DynamoDBv2.Model;
 using Amazon.Runtime;
-using Amazon.S3;
-using Amazon.S3.Transfer;
 using Newtonsoft.Json;
 
 public class ArticlesService {
