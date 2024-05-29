@@ -92,6 +92,7 @@ public class TournamentsService {
 
       if (adjudicatorNode.Attributes["id"] is not null) 
         participant[adjudicatorNode.Attributes["id"]!.Value] = new {
+          id = adjudicatorNode.Attributes["id"]!.Value,
           name = adjudicatorNode.Attributes["name"]?.Value,
           society = adjudicatorNode.Attributes["institutions"] is not null ? institution[adjudicatorNode.Attributes["institutions"]!.Value] : null,
         };
@@ -117,6 +118,7 @@ public class TournamentsService {
         speakerNode.Attributes["categories"]!.Value != ""
       ) 
         participant[speakerNode.Attributes["id"]!.Value] = new {
+          id = speakerNode.Attributes["id"]!.Value,
           name = speakerNode.Attributes["name"]?.Value,
           society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : null,
           speakerCategory = 
@@ -155,6 +157,7 @@ public class TournamentsService {
           speakerNode.Attributes!["id"]!.Value != ""
         )
           participant[speakerNode.Attributes!["id"]!.Value] = new {
+            id = speakerNode.Attributes!["id"]!.Value,
             name = speakerNode.InnerText,
             society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : null,
             speakerCategory = 
@@ -178,6 +181,7 @@ public class TournamentsService {
 
       if (teamNode.Attributes!["id"] is not null) 
         team[teamNode.Attributes!["id"]!.Value] = new {
+          id = teamNode.Attributes!["id"]!.Value,
           name = teamNode.Attributes["name"]?.Value,
           speakers = teamSpeakers,
           breakCategory = 
@@ -237,8 +241,12 @@ public class TournamentsService {
         string debateVenueId = debateNode.Attributes!["venue"]!.Value;
         string? debateMotionId = debateNode.Attributes!["motion"] is not null ? debateNode.Attributes!["motion"]!.Value : null;
 
-        List<object> debateAdjudicators = debateAdjudicatorIds.Select(adjudicatorId => participant[adjudicatorId]).ToList();
         object debateChair = participant[debateChairId];
+        List<object> debateWings = 
+          debateAdjudicatorIds
+            .Where(adjudicatorId => adjudicatorId != debateChairId)
+            .Select(adjudicatorId => participant[adjudicatorId])
+            .ToList();
         string debateVenue = venue[debateVenueId];
         string? debateMotion = debateMotionId is not null ? motion[debateMotionId] : null;
 
@@ -280,7 +288,7 @@ public class TournamentsService {
 
         debates.Add(new {
           debateId,
-          debateAdjudicators,
+          debateWings,
           debateChair,
           debateVenue,
           debateMotion,
