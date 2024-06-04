@@ -5,6 +5,7 @@ using Amazon.S3;
 using Amazon.S3.Model;
 
 public class TournamentsService {
+  public string bucket;
   public AmazonS3Client s3;
   public TournamentsService(WebApplicationBuilder builder) {
     BasicAWSCredentials credentials = new BasicAWSCredentials(
@@ -12,13 +13,34 @@ public class TournamentsService {
       builder.Configuration["AWS:SecretKey"]
     );
     s3 = new AmazonS3Client(credentials, RegionEndpoint.SAEast1);
+    bucket = "tabbyarchive";
+  }
+
+  public async Task<List<string>> GetAllTournamentOptions() {
+    List<string> options = (await s3.ListObjectsAsync(bucket)).S3Objects.Select(x => Path.GetFileName(x.Key)).ToList();
+
+    return options;
+  }
+
+  public async Task<Dictionary<string, object>> GetAllTournamentsTabbyData() {
+    List<S3Object> options = (await s3.ListObjectsAsync(bucket)).S3Objects;
+
+    Dictionary<string, object> data = new Dictionary<string, object>();
+
+    foreach (S3Object option in options) {
+      string tournament = option.Key.Split(".")[0];
+
+      data[tournament] = await GetTournamentTabbyData(tournament);
+    }
+
+    return data;
   }
 
   public async Task<string> GetTournamentTabbyFileContent(string tournament) {
     string fileName = tournament + ".xml";
 
     GetObjectRequest request = new GetObjectRequest {
-      BucketName = "tabbyarchive",
+      BucketName = bucket,
       Key = fileName,
     };
 
