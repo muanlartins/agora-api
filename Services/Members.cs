@@ -32,8 +32,11 @@ public class MembersService {
       { "isTrainee", new AttributeValue { BOOL = member.isTrainee } },
       { "hasPfp", new AttributeValue { BOOL = member.hasPfp } },
       { "blocked", new AttributeValue { BOOL = member.blocked } },
-      { "description", new AttributeValue { S = member.description } },
     };
+
+    if (member.description is not null) {
+      createMemberItem.Add("description", new AttributeValue { S = member.description });
+    }
     
     PutItemRequest createMemberRequest = new PutItemRequest {
       TableName = table,
@@ -79,7 +82,6 @@ public class MembersService {
       { "#IT", "isTrainee"},
       { "#HP", "hasPfp"},
       { "#B", "blocked"},
-      { "#D", "description"},
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
@@ -88,10 +90,16 @@ public class MembersService {
         { ":it", new AttributeValue { BOOL = updatedMember.isTrainee } },
         { ":hp", new AttributeValue { BOOL = updatedMember.hasPfp } },
         { ":b", new AttributeValue { BOOL = updatedMember.blocked } },
-        { ":d", new AttributeValue { S = updatedMember.description } }
     };
 
-    string updateExpression = "SET #N = :n, #S = :s, #IT = :it, #HP = :hp, #B = :b, #D = :d";
+    if (updatedMember.description is not null) {
+      expressionAttributeNames.Add("#D", "description");
+      expressionAttributeValues.Add(":d", new AttributeValue { S = updatedMember.description });
+    }
+
+    string updateExpression = "SET #N = :n, #S = :s, #IT = :it, #HP = :hp, #B = :b";
+
+    if (updatedMember.description is not null) updateExpression += ", #D = :d";
     
     UpdateItemRequest updateMemberRequest = new UpdateItemRequest {
       TableName = table,
