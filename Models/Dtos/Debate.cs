@@ -5,7 +5,7 @@ public record Debate(
   DebateStyle style,
   DebateVenue venue,
   string motionType,
-  MotionTheme motionTheme,
+  string motionTheme,
   string motion,
   string[]? infoSlides,
   Member[]? debaters,

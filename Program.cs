@@ -30,7 +30,7 @@ WebApplication app = builder.Build();
 app.Use(async (context, next) => {
   if (
     HttpMethod.Options.ToString() == context.Request.Method.ToString() || 
-    UtilsService.IsPathOpen(context.Request.Path)
+    UtilsService.IsPathOpen(context.Request.Path, context.Request.Method)
   ) {
     await next.Invoke();
     return;
