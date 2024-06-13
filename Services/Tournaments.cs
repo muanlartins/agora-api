@@ -109,14 +109,14 @@ public class TournamentsService {
       adjudicators.Add(new {
         id = adjudicatorNode.Attributes!["id"]?.Value,
         name = adjudicatorNode.Attributes["name"]?.Value,
-        society = adjudicatorNode.Attributes["institutions"] is not null ? institution[adjudicatorNode.Attributes["institutions"]!.Value] : null,
+        society = adjudicatorNode.Attributes["institutions"] is not null ? institution[adjudicatorNode.Attributes["institutions"]!.Value] : "Independente",
       });
 
       if (adjudicatorNode.Attributes["id"] is not null) 
         participant[adjudicatorNode.Attributes["id"]!.Value] = new {
           id = adjudicatorNode.Attributes["id"]!.Value,
           name = adjudicatorNode.Attributes["name"]?.Value,
-          society = adjudicatorNode.Attributes["institutions"] is not null ? institution[adjudicatorNode.Attributes["institutions"]!.Value] : null,
+          society = adjudicatorNode.Attributes["institutions"] is not null ? institution[adjudicatorNode.Attributes["institutions"]!.Value] : "Independente",
         };
     }
 
@@ -127,7 +127,7 @@ public class TournamentsService {
       speakers.Add(new {
         id = speakerNode.Attributes!["id"]?.Value,
         name = speakerNode.InnerText,
-        society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : null,
+        society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : "Independente",
         speakerCategories = 
           speakerNode.Attributes["categories"] is not null &&
           speakerNode.Attributes["categories"]!.Value != "" ? 
@@ -142,8 +142,8 @@ public class TournamentsService {
         participant[speakerNode.Attributes["id"]!.Value] = new {
           id = speakerNode.Attributes["id"]!.Value,
           name = speakerNode.Attributes["name"]?.Value,
-          society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : null,
-          speakerCategory = 
+          society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : "Independente",
+          speakerCategories = 
             speakerNode.Attributes["categories"] is not null &&
             speakerNode.Attributes["categories"]!.Value != "" ? 
             speakerNode.Attributes!["categories"]!.Value.Split(" ").Select(category => speakerCategory[category]) : 
@@ -166,8 +166,8 @@ public class TournamentsService {
         teamSpeakers.Add(new {
           id = speakerNode.Attributes!["id"]?.Value,
           name = speakerNode.InnerText,
-          society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : null,
-          speakerCategory = 
+          society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : "Independente",
+          speakerCategories = 
             speakerNode.Attributes["categories"] is not null &&
             speakerNode.Attributes["categories"]!.Value != "" ? 
             speakerNode.Attributes!["categories"]!.Value.Split(" ").Select(category => speakerCategory[category]) : 
@@ -181,8 +181,8 @@ public class TournamentsService {
           participant[speakerNode.Attributes!["id"]!.Value] = new {
             id = speakerNode.Attributes!["id"]!.Value,
             name = speakerNode.InnerText,
-            society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : null,
-            speakerCategory = 
+            society = speakerNode.Attributes["institutions"] is not null ? institution[speakerNode.Attributes["institutions"]!.Value] : "Independente",
+            speakerCategories = 
               speakerNode.Attributes["categories"] is not null &&
               speakerNode.Attributes["categories"]!.Value != "" ? 
               speakerNode.Attributes!["categories"]!.Value.Split(" ").Select(category => speakerCategory[category]) : 
@@ -194,7 +194,7 @@ public class TournamentsService {
         id = teamNode.Attributes!["id"]?.Value,
         name = teamNode.Attributes["name"]?.Value,
         speakers = teamSpeakers,
-        breakCategory = 
+        breakCategories = 
           teamNode.Attributes["break-eligibilities"] is not null &&
           teamNode.Attributes["break-eligibilities"]!.Value != "" ? 
           teamNode.Attributes!["break-eligibilities"]!.Value.Split(" ").Select(category => breakCategory[category]) : 
@@ -206,7 +206,7 @@ public class TournamentsService {
           id = teamNode.Attributes!["id"]!.Value,
           name = teamNode.Attributes["name"]?.Value,
           speakers = teamSpeakers,
-          breakCategory = 
+          breakCategories = 
             teamNode.Attributes["break-eligibilities"] is not null &&
             teamNode.Attributes["break-eligibilities"]!.Value != "" ? 
             teamNode.Attributes!["break-eligibilities"]!.Value.Split(" ").Select(category => breakCategory[category]) :
