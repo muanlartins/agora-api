@@ -49,7 +49,6 @@ public class ParticipantsService {
       { "subscribedAt", new AttributeValue { S = participant.subscribedAt } },
       { "hasPfp", new AttributeValue { BOOL = participant.hasPfp } },
       { "category", new AttributeValue { S = participant.category.ToString() } },
-      { "mvp", new AttributeValue { BOOL = participant.mvp ?? false }}
     };
     
     if (participant.roles is not null && participant.roles.Length > 0) {
@@ -58,6 +57,14 @@ public class ParticipantsService {
         roles.Add(new AttributeValue { S = role.ToString() });
 
       createParticipantItem.Add("roles", new AttributeValue { L = roles });
+    }
+
+    if (participant.duoId is not null) {
+      createParticipantItem.Add("duoId", new AttributeValue { S = participant.duoId });
+    }
+
+    if (participant.emoji is not null) {
+      createParticipantItem.Add("emoji", new AttributeValue { S = participant.emoji });
     }
     
     PutItemRequest createParticipantRequest = new PutItemRequest {
@@ -76,7 +83,8 @@ public class ParticipantsService {
       false,
       category: participant.category,
       roles: participant.roles,
-      mvp: participant.mvp ?? false
+      duoId: participant.duoId,
+      emoji: participant.emoji
     );
   }
 
@@ -141,8 +149,6 @@ public class ParticipantsService {
       { "#SA", "subscribedAt" },
       { "#HP", "hasPfp" },
       { "#C", "category" },
-      { "#M", "mvp" },
-      { "#DI", "duoId" },
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
@@ -152,8 +158,6 @@ public class ParticipantsService {
         { ":sa", new AttributeValue { S = updatedParticipant.subscribedAt } },
         { ":hp", new AttributeValue { BOOL = updatedParticipant.hasPfp } },
         { ":c", new AttributeValue { S = updatedParticipant.category.ToString() } },
-        { ":m", new AttributeValue { BOOL = updatedParticipant.mvp ?? false } },
-        { ":di", new AttributeValue { S = updatedParticipant.duoId } },
     };
 
     if (updatedParticipant.roles is not null && updatedParticipant.roles.Length > 0) {
@@ -165,9 +169,21 @@ public class ParticipantsService {
       expressionAttributeValues.Add(":r", new AttributeValue { L = roles });
     }
 
-    string updateExpression = "SET #T = :t, #N = :n, #S = :s, #SA = :sa, #HP = :hp, #C = :c, #M = :m, #DI = :di";
+    if (updatedParticipant.duoId is not null) {
+      expressionAttributeNames.Add("#DI", "duoId");
+      expressionAttributeValues.Add(":di", new AttributeValue { S = updatedParticipant.duoId });
+    }
+
+    if (updatedParticipant.emoji is not null) {
+      expressionAttributeNames.Add("#E", "emoji");
+      expressionAttributeValues.Add(":e", new AttributeValue { S = updatedParticipant.emoji });
+    }
+
+    string updateExpression = "SET #T = :t, #N = :n, #S = :s, #SA = :sa, #HP = :hp, #C = :c";
 
     if (updatedParticipant.roles is not null && updatedParticipant.roles.Length > 0) updateExpression += ", #R = :r";
+    if (updatedParticipant.duoId is not null) updateExpression += ", #DI = :di";
+    if (updatedParticipant.emoji is not null) updateExpression += ", #E = :e";
     
     UpdateItemRequest updateParticipantRequest = new UpdateItemRequest {
       TableName = table,

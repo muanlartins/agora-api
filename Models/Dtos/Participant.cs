@@ -6,7 +6,7 @@ public record Participant(
   string subscribedAt,
   bool hasPfp,
   string? duoId = null,
+  string? emoji = null,
   ParticipantCategory? category = null,
-  TournamentRole[]? roles = null,
-  bool? mvp = null
+  TournamentRole[]? roles = null
 );
