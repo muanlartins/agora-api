@@ -112,8 +112,8 @@ public async Task<List<Motion>> GetMotionsByTournament(string tournament)
       - type
       - tournament
     */
-    public async Task<List<Motion>> GetNRandomMotion(int n, string? theme = null, string? type = null, string? tournament = null)
-{
+    public async Task<List<Motion>> GetNRandomMotion(int n = 1, string? theme = null, string? type = null, string? tournament = null)
+    {
     ScanRequest scanRequest = new ScanRequest
     {
         TableName = table,
@@ -148,19 +148,33 @@ public async Task<List<Motion>> GetMotionsByTournament(string tournament)
     List<Motion> motions = new List<Motion>();
 
     Random random = new Random();
-    int count = 0;
+    int totalItems = response.Items.Count;
 
-    foreach (Dictionary<string, AttributeValue> motionData in response.Items)
+    if (totalItems > n)
     {
-        if (count >= n)
-            break;
-
-        Motion motion = JsonConvert.DeserializeObject<Motion>(Document.FromAttributeMap(motionData).ToJsonPretty())!;
-        motions.Add(motion);
-        count++;
+        HashSet<int> selectedIndices = new HashSet<int>();
+        while (selectedIndices.Count < n)
+        {
+            int randomIndex = random.Next(totalItems);
+            if (!selectedIndices.Contains(randomIndex))
+            {
+                selectedIndices.Add(randomIndex);
+                Dictionary<string, AttributeValue> motionData = response.Items[randomIndex];
+                Motion motion = JsonConvert.DeserializeObject<Motion>(Document.FromAttributeMap(motionData).ToJsonPretty())!;
+                motions.Add(motion);
+            }
+        }
+    }
+    else
+    { // In case we have less than n motions using the filter
+        foreach (Dictionary<string, AttributeValue> motionData in response.Items)
+        {
+            Motion motion = JsonConvert.DeserializeObject<Motion>(Document.FromAttributeMap(motionData).ToJsonPretty())!;
+            motions.Add(motion);
+        }
     }
 
     return motions;
-}
+  }
 
 }

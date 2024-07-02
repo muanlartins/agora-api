@@ -1,9 +1,9 @@
 public record Motion(
     string id,
-    MotionType type,
+    string type,
     string infoSlide,
     string text,
-    MotionTheme theme, 
+    string theme, 
     string? tournament,
     string? round
 );
