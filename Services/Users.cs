@@ -4,9 +4,11 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2.DocumentModel;
 using Amazon.Runtime;
 using Newtonsoft.Json;
-using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 
 public class UsersService {
+  WebApplicationBuilder builder;
   public AmazonDynamoDBClient client;
   public string table;
   public UsersService(WebApplicationBuilder builder) {
@@ -16,6 +18,7 @@ public class UsersService {
       builder.Configuration["AWS:SecretKey"]
     );
     client = new AmazonDynamoDBClient(credentials, RegionEndpoint.SAEast1);
+    this.builder = builder;
   }
 
   public async Task<bool?> CreateUser(Credentials credentials) {
@@ -66,37 +69,6 @@ public class UsersService {
     return JsonConvert.DeserializeObject<User>(document.ToJsonPretty());
   }
 
-  public async Task<bool> UpdateUser(User user, User updatedUser) {
-    Dictionary<string, AttributeValue> updateUserKey = new Dictionary<string, AttributeValue>() { 
-      { "login", new AttributeValue { S = user.login } } 
-    };
-
-    Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
-      {"#F", "fullName"},
-      {"#N", "nickname"}
-    };
-
-    Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
-        { ":f", new AttributeValue { S = updatedUser.fullName ?? "" } },
-        { ":n", new AttributeValue { S = updatedUser.nickname ?? "" } }
-    };
-
-    string updateExpression = "SET #F = :f, #N = :n";
-    
-    UpdateItemRequest updateUserRequest = new UpdateItemRequest {
-      TableName = table,
-      Key = updateUserKey,
-      ExpressionAttributeNames = expressionAttributeNames,
-      ExpressionAttributeValues = expressionAttributeValues,
-      UpdateExpression = updateExpression,
-    };
-
-    UpdateItemResponse updateUserResponse = await client.UpdateItemAsync(updateUserRequest);
-
-    if (updateUserResponse.HttpStatusCode.Equals(HttpStatusCode.OK)) return true;
-    return false;
-  }
-
   public async Task<bool> VerifyLoginAvailablity(string login) {
     Dictionary<string, AttributeValue> Key = new Dictionary<string, AttributeValue>() { 
       { "login", new AttributeValue { S = login } } 
@@ -126,10 +98,15 @@ public class UsersService {
 
     if (!response.IsItemSet) return false;
 
-    Document document = Document.FromAttributeMap(response.Item);
+    User user = JsonConvert.DeserializeObject<User>(Document.FromAttributeMap(response.Item).ToJsonPretty())!;
 
-    User user = JsonConvert.DeserializeObject<User>(document.ToJsonPretty())!;
+    string hmacKey = builder.Configuration["PasswordSalt"];
+    byte[] hmacKeyBytes = Encoding.UTF8.GetBytes(hmacKey);
+    HMACSHA256 hmac = new HMACSHA256(hmacKeyBytes);
+    byte[] passwordBytes = Encoding.UTF8.GetBytes(credentials.password);
+    byte[] encryptedPasswordBytes = hmac.ComputeHash(passwordBytes);
+    string encryptedPassword = BitConverter.ToString(encryptedPasswordBytes).Replace("-", "").ToLower();
 
-    return user.login.Equals(credentials.login) && user.password.Equals(credentials.password);
+    return user.login.Equals(credentials.login) && user.password.Equals(encryptedPassword);
   }
 }

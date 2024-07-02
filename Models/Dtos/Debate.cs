@@ -4,13 +4,14 @@ public record Debate(
   string time,
   DebateStyle style,
   DebateVenue venue,
-  MotionType motionType,
-  MotionTheme motionTheme,
+  string motionType,
+  string motionTheme,
   string motion,
   string[]? infoSlides,
   Member[]? debaters,
-  int[] points,
+  int[]? points,
   int[]? sps,
   Member chair,
-  Member[]? wings
+  Member[]? wings,
+  string? tournament
 );

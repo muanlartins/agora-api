@@ -1,1 +1,1 @@
-public record User(string fullName, string login, string nickname, string password) : Credentials(login, password);
+public record User(string login, string password, Role role) : Credentials(login, password);
