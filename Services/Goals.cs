@@ -28,13 +28,16 @@ public class GoalsService {
       { "currentCount", new AttributeValue { N = goal.currentCount.ToString() } },
       { "totalCount", new AttributeValue { N = goal.totalCount.ToString() } },
       { "type", new AttributeValue { S = goal.type } },
-      { "description", new AttributeValue { S = goal.description } },
     };
     
     PutItemRequest createGoalRequest = new PutItemRequest {
       TableName = table,
       Item = createGoalItem,
     };
+
+    if (goal.description is not null) {
+      createGoalItem.Add("description", new AttributeValue { S = goal.description });
+    }
 
     await dynamo.PutItemAsync(createGoalRequest);
 
@@ -66,7 +69,6 @@ public class GoalsService {
       {"#currentCount", "currentCount"},
       {"#totalCount", "totalCount"},
       {"#type", "type"},
-      {"#description", "description"},
     };
 
     Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
@@ -74,10 +76,16 @@ public class GoalsService {
         { ":currentCount", new AttributeValue { N = updatedGoal.currentCount.ToString() } },
         { ":totalCount", new AttributeValue { N = updatedGoal.totalCount.ToString() } },
         { ":type", new AttributeValue { S = updatedGoal.type } },
-        { ":description", new AttributeValue { S = updatedGoal.description } },
     };
 
-    string updateExpression = "SET #title = :title, #currentCount = :currentCount, #totalCount = :totalCount, #type = :type, #description = :description";
+    if (updatedGoal.description is not null) {
+      expressionAttributeNames.Add("#description", "description");
+      expressionAttributeValues.Add(":description", new AttributeValue { S = updatedGoal.description });
+    }
+
+    string updateExpression = "SET #title = :title, #currentCount = :currentCount, #totalCount = :totalCount, #type = :type";
+
+    if (updatedGoal.description is not null) updateExpression += ", #description = :description";
     
     UpdateItemRequest updateGoalRequest = new UpdateItemRequest {
       TableName = table,

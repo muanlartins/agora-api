@@ -18,7 +18,7 @@ public abstract class UtilsService {
   }
 
   public static string Hash(WebApplicationBuilder builder, string data) {
-    string hmacKey = builder.Configuration["PasswordSalt"];
+    string hmacKey = builder.Configuration["PasswordSalt"]!;
     byte[] hmacKeyBytes = Encoding.UTF8.GetBytes(hmacKey);
     HMACSHA256 hmac = new HMACSHA256(hmacKeyBytes);
     byte[] dataBytes = Encoding.UTF8.GetBytes(data);

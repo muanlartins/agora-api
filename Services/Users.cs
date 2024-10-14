@@ -100,7 +100,7 @@ public class UsersService {
 
     User user = JsonConvert.DeserializeObject<User>(Document.FromAttributeMap(response.Item).ToJsonPretty())!;
 
-    string hmacKey = builder.Configuration["PasswordSalt"];
+    string hmacKey = builder.Configuration["PasswordSalt"]!;
     byte[] hmacKeyBytes = Encoding.UTF8.GetBytes(hmacKey);
     HMACSHA256 hmac = new HMACSHA256(hmacKeyBytes);
     byte[] passwordBytes = Encoding.UTF8.GetBytes(credentials.password);

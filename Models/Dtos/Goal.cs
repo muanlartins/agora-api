@@ -4,5 +4,5 @@ public record Goal(
   int currentCount,
   int totalCount,
   string type,
-  string description
+  string? description
 );
