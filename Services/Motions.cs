@@ -12,8 +12,8 @@ public class MotionsService{
     public MotionsService(WebApplicationBuilder builder) {
     table = "motions";
     BasicAWSCredentials credentials = new BasicAWSCredentials(
-        builder.Configuration["AWS:AccessKey"], 
-        builder.Configuration["AWS:SecretKey"]
+        Environment.GetEnvironmentVariable("ACCESS_KEY"), 
+        Environment.GetEnvironmentVariable("SECRET_KEY")
     );
     client = new AmazonDynamoDBClient(credentials, RegionEndpoint.SAEast1);
     }

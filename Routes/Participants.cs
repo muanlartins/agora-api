@@ -26,7 +26,7 @@ public static class ParticipantsRoute {
         csvRows.RemoveAt(0);
 
         foreach (string row in csvRows) {
-          if (row.IsNullOrEmpty()) continue;
+          if (string.IsNullOrEmpty(row)) continue;
 
           List<string> fields = row.Split(',').ToList();
 

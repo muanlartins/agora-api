@@ -13,8 +13,8 @@ public class ArticlesService {
   public ArticlesService(WebApplicationBuilder builder) {
     table = "articles";
     BasicAWSCredentials credentials = new BasicAWSCredentials(
-      builder.Configuration["AWS:AccessKey"], 
-      builder.Configuration["AWS:SecretKey"]
+      Environment.GetEnvironmentVariable("ACCESS_KEY"), 
+      Environment.GetEnvironmentVariable("SECRET_KEY")
     );
     dynamo = new AmazonDynamoDBClient(credentials, RegionEndpoint.SAEast1);
   }

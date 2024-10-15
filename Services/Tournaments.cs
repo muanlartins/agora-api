@@ -9,8 +9,8 @@ public class TournamentsService {
   public AmazonS3Client s3;
   public TournamentsService(WebApplicationBuilder builder) {
     BasicAWSCredentials credentials = new BasicAWSCredentials(
-      builder.Configuration["AWS:AccessKey"], 
-      builder.Configuration["AWS:SecretKey"]
+      Environment.GetEnvironmentVariable("ACCESS_KEY"), 
+      Environment.GetEnvironmentVariable("SECRET_KEY")
     );
     s3 = new AmazonS3Client(credentials, RegionEndpoint.SAEast1);
     bucket = "tabbyarchive";

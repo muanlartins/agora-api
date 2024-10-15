@@ -12,8 +12,8 @@ public class DebatesService {
   public DebatesService(WebApplicationBuilder builder) {
     table = "debates";
     BasicAWSCredentials credentials = new BasicAWSCredentials(
-      builder.Configuration["AWS:AccessKey"], 
-      builder.Configuration["AWS:SecretKey"]
+      Environment.GetEnvironmentVariable("ACCESS_KEY"), 
+      Environment.GetEnvironmentVariable("SECRET_KEY")
     );
     client = new AmazonDynamoDBClient(credentials, RegionEndpoint.SAEast1);
   }

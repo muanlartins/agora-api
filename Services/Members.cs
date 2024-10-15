@@ -15,8 +15,8 @@ public class MembersService {
   public MembersService(WebApplicationBuilder builder) {
     table = "members";
     BasicAWSCredentials credentials = new BasicAWSCredentials(
-      builder.Configuration["AWS:AccessKey"], 
-      builder.Configuration["AWS:SecretKey"]
+      Environment.GetEnvironmentVariable("ACCESS_KEY"), 
+      Environment.GetEnvironmentVariable("SECRET_KEY")
     );
     dynamo = new AmazonDynamoDBClient(credentials, RegionEndpoint.SAEast1);
     s3 = new AmazonS3Client(credentials, RegionEndpoint.SAEast1);

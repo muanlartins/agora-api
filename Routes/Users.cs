@@ -12,7 +12,7 @@ public static class UsersRoute {
     });
 
     app.MapPost("/user", async (Credentials credentials, string jwtKey) => {
-      if (builder.Configuration["Jwt:Key"] != jwtKey) return Results.BadRequest("Chave JWT errada.");
+      if (Environment.GetEnvironmentVariable("JWT_KEY") != jwtKey) return Results.BadRequest("Chave JWT errada.");
 
       bool? created = await usersService.CreateUser(credentials);
 

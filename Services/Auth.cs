@@ -25,7 +25,7 @@ public class AuthService {
       JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
       TokenValidationParameters validationParameters = new TokenValidationParameters {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")!)),
         ValidateIssuer = false,
         ValidateAudience = false,
       };
@@ -52,7 +52,7 @@ public class AuthService {
   }
 
   private string GenerateJwtToken(User user) {
-    var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
+    var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_KEY")!);
 
     var tokenHandler = new JwtSecurityTokenHandler();
     var tokenDescriptor = new SecurityTokenDescriptor

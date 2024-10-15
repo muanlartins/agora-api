@@ -1,3 +1,5 @@
 .vs
 bin/
 obj/
+environment.sh
+aws-lambda-tools-defaults.json
