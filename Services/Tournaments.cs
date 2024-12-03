@@ -110,6 +110,7 @@ public class TournamentsService {
         id = adjudicatorNode.Attributes!["id"]?.Value,
         name = adjudicatorNode.Attributes["name"]?.Value,
         society = adjudicatorNode.Attributes["institutions"] is not null ? institution[adjudicatorNode.Attributes["institutions"]!.Value] : "Independente",
+        core = adjudicatorNode.Attributes["core"]?.Value,
       });
 
       if (adjudicatorNode.Attributes["id"] is not null) 
@@ -117,6 +118,7 @@ public class TournamentsService {
           id = adjudicatorNode.Attributes["id"]!.Value,
           name = adjudicatorNode.Attributes["name"]?.Value,
           society = adjudicatorNode.Attributes["institutions"] is not null ? institution[adjudicatorNode.Attributes["institutions"]!.Value] : "Independente",
+          core = adjudicatorNode.Attributes["core"]?.Value,
         };
     }
 
