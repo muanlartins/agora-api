@@ -5,16 +5,13 @@ using System.Text;
 public abstract class UtilsService {
   public UtilsService() {}
 
-  public static bool IsPathOpen(string path, string method) {
-    if (path.Equals("/auth/login")) return true;
+  public static bool IsPathOpen(HttpRequest request) {
+    string path = request.Path;
 
-    if (method != HttpMethod.Get.ToString()) return false;
+    bool isPathPublic = path.StartsWith("/public");
+    bool isPreflightRequest = HttpMethod.Options.ToString() == request.Method.ToString();
 
-    if (path.Equals("/participants")) return true;
-    if (path.StartsWith("/tournament")) return true;
-    if (path.StartsWith("/member/")) return true;
-
-    return false;
+    return isPathPublic || isPreflightRequest;
   }
 
   public static string Hash(WebApplicationBuilder builder, string data) {

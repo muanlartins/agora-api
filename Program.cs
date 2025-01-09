@@ -5,6 +5,8 @@ using Microsoft.IdentityModel.Tokens;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+DotNetEnv.Env.Load();
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options => {
   options.SaveToken = true;
   options.TokenValidationParameters = new TokenValidationParameters {
@@ -29,8 +31,7 @@ WebApplication app = builder.Build();
 
 app.Use(async (context, next) => {
   if (
-    HttpMethod.Options.ToString() == context.Request.Method.ToString() || 
-    UtilsService.IsPathOpen(context.Request.Path, context.Request.Method)
+    UtilsService.IsPathOpen(context.Request)
   ) {
     await next.Invoke();
     return;

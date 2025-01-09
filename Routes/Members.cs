@@ -18,7 +18,7 @@ public static class MembersRoute {
       return Results.Ok(members);
     });
 
-    app.MapPut("/member", async (HttpRequest request) => {
+    app.MapPut("/public/member", async (HttpRequest request) => {
       using (StreamReader r = new StreamReader(request.Body)) {
         string bodyString = await r.ReadToEndAsync();
 
@@ -43,7 +43,7 @@ public static class MembersRoute {
       return Results.Ok();
     });
 
-    app.MapGet("/member/{id}", async (HttpRequest request, string id) => {
+    app.MapGet("/public/member/{id}", async (HttpRequest request, string id) => {
       Member? member = await membersService.GetMember(id);
 
       if (member is null) return Results.BadRequest("Não foi possível encontrar o membro.");
@@ -51,7 +51,7 @@ public static class MembersRoute {
       return Results.Ok(member);
     });
 
-    app.MapGet("/member/{id}/private/{hashedId}", (HttpRequest request, string id, string hashedId) => {
+    app.MapGet("/public/member/{id}/private/{hashedId}", (HttpRequest request, string id, string hashedId) => {
       return Results.Ok(UtilsService.Hash(builder, id).Equals(hashedId));
     });
 

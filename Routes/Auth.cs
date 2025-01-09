@@ -3,7 +3,7 @@ public static class AuthRoute {
     UsersService usersService = new UsersService(builder);
     AuthService authService = new AuthService(builder);
 
-    app.MapPost("/auth/login", async (Credentials credentials) => {
+    app.MapPost("/public/auth/login", async (Credentials credentials) => {
       bool credentialsVerified = await usersService.VerifyUserCredentials(credentials);
 
       if (!credentialsVerified) return Results.BadRequest("O login ou senha está incorreta.");

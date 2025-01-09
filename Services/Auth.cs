@@ -13,7 +13,7 @@ public class AuthService {
   public User? GetUserByRequest(HttpRequest request) {
     string[]? authorizationHeader = request.Headers.Authorization;
 
-    if (authorizationHeader is null) return null;
+    if (authorizationHeader is null || authorizationHeader.Length < 1) return null;
 
     string authorization = authorizationHeader[0];
 

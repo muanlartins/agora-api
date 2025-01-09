@@ -7,7 +7,7 @@ public static class ParticipantsRoute {
     AuthService authService = new AuthService(builder);
     ParticipantsService participantsService = new ParticipantsService(builder);
 
-    app.MapGet("/participants", async (HttpRequest request) => {
+    app.MapGet("/public/participants", async (HttpRequest request) => {
       var participants = await participantsService.GetAllParticipants();
 
       return Results.Ok(participants);
