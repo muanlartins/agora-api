@@ -18,7 +18,7 @@ public static class ArticlesRoute {
       return Results.Ok(articles);
     });
 
-    app.MapGet("/article", async (HttpRequest request, string id) => {
+    app.MapGet("/public/article/{id}", async (HttpRequest request, string id) => {
       Article? article = await articlesService.GetArticle(id);
 
       if (article is null) return Results.BadRequest("Não foi possível encontrar o artigo.");
