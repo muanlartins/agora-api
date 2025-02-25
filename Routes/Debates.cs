@@ -11,7 +11,7 @@ public static class DebatesRoute {
       return Results.Ok(createdDebate);
     });
 
-    app.MapGet("/debate", async (HttpRequest request, string id) => {
+    app.MapGet("/public/debate/{id}", async (HttpRequest request, string id) => {
       Debate? debate = await debatesService.GetDebate(id);
 
       if (debate is null) return Results.BadRequest("Não foi possível encontrar o debate.");
