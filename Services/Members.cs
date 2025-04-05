@@ -8,25 +8,28 @@ using Amazon.S3;
 using Amazon.S3.Transfer;
 using Newtonsoft.Json;
 
-public class MembersService {
+public class MembersService
+{
   public AmazonDynamoDBClient dynamo;
   public string table;
   public AmazonS3Client s3;
-  public MembersService(WebApplicationBuilder builder) {
+  public MembersService(WebApplicationBuilder builder)
+  {
     table = "members";
     BasicAWSCredentials credentials = new BasicAWSCredentials(
-      Environment.GetEnvironmentVariable("ACCESS_KEY"), 
+      Environment.GetEnvironmentVariable("ACCESS_KEY"),
       Environment.GetEnvironmentVariable("SECRET_KEY")
     );
     dynamo = new AmazonDynamoDBClient(credentials, RegionEndpoint.SAEast1);
     s3 = new AmazonS3Client(credentials, RegionEndpoint.SAEast1);
   }
 
-  public async Task<Member> CreateMember(Member member) {
+  public async Task<Member> CreateMember(Member member)
+  {
     string id = Guid.NewGuid().ToString();
 
-    Dictionary<string, AttributeValue> createMemberItem = new Dictionary<string, AttributeValue>() { 
-      { "id", new AttributeValue { S = id } }, 
+    Dictionary<string, AttributeValue> createMemberItem = new Dictionary<string, AttributeValue>() {
+      { "id", new AttributeValue { S = id } },
       { "name", new AttributeValue { S = member.name } },
       { "society", new AttributeValue { S = member.society.ToString() } },
       { "isTrainee", new AttributeValue { BOOL = member.isTrainee } },
@@ -34,11 +37,18 @@ public class MembersService {
       { "blocked", new AttributeValue { BOOL = member.blocked } },
     };
 
-    if (member.description is not null) {
+    if (member.description is not null)
+    {
       createMemberItem.Add("description", new AttributeValue { S = member.description });
     }
-    
-    PutItemRequest createMemberRequest = new PutItemRequest {
+
+    if (member.selectiveProcess is not null)
+    {
+      createMemberItem.Add("selectiveProcess", new AttributeValue { S = member.selectiveProcess });
+    }
+
+    PutItemRequest createMemberRequest = new PutItemRequest
+    {
       TableName = table,
       Item = createMemberItem,
     };
@@ -46,18 +56,21 @@ public class MembersService {
     await dynamo.PutItemAsync(createMemberRequest);
 
     return new Member(
-      id, 
-      member.name, 
-      member.society, 
-      member.isTrainee, 
-      member.hasPfp, 
+      id,
+      member.name,
+      member.society,
+      member.isTrainee,
+      member.hasPfp,
       member.blocked,
-      member.description
+      member.description,
+      member.selectiveProcess
     );
   }
 
-  public async Task<List<Member>> GetAllMembers() {
-    ScanRequest getAllMembersRequest = new ScanRequest { 
+  public async Task<List<Member>> GetAllMembers()
+  {
+    ScanRequest getAllMembersRequest = new ScanRequest
+    {
       TableName = table
     };
 
@@ -65,18 +78,19 @@ public class MembersService {
 
     List<Member> members = new List<Member>();
 
-    foreach (Dictionary<string, AttributeValue> member in response.Items) 
+    foreach (Dictionary<string, AttributeValue> member in response.Items)
       members.Add(JsonConvert.DeserializeObject<Member>(Document.FromAttributeMap(member).ToJsonPretty())!);
 
     return members;
   }
 
-  public async Task<bool> UpdateMember(Member updatedMember) {
-    Dictionary<string, AttributeValue> updateMemberKey = new Dictionary<string, AttributeValue>() { 
-      { "id", new AttributeValue { S = updatedMember.id } } 
+  public async Task<bool> UpdateMember(Member updatedMember)
+  {
+    Dictionary<string, AttributeValue> updateMemberKey = new Dictionary<string, AttributeValue>() {
+      { "id", new AttributeValue { S = updatedMember.id } }
     };
 
-    Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
+    Dictionary<string, string> expressionAttributeNames = new Dictionary<string, string>() {
       {"#N", "name"},
       {"#S", "society"},
       { "#IT", "isTrainee"},
@@ -84,7 +98,7 @@ public class MembersService {
       { "#B", "blocked"},
     };
 
-    Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
+    Dictionary<string, AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
         { ":n", new AttributeValue { S = updatedMember.name } },
         { ":s", new AttributeValue { S = updatedMember.society.ToString() } },
         { ":it", new AttributeValue { BOOL = updatedMember.isTrainee } },
@@ -92,16 +106,25 @@ public class MembersService {
         { ":b", new AttributeValue { BOOL = updatedMember.blocked } },
     };
 
-    if (updatedMember.description is not null) {
+    if (updatedMember.description is not null)
+    {
       expressionAttributeNames.Add("#D", "description");
       expressionAttributeValues.Add(":d", new AttributeValue { S = updatedMember.description });
+    }
+
+    if (updatedMember.selectiveProcess is not null)
+    {
+      expressionAttributeNames.Add("#selectiveProcess", "selectiveProcess");
+      expressionAttributeValues.Add(":selectiveProcess", new AttributeValue { S = updatedMember.selectiveProcess });
     }
 
     string updateExpression = "SET #N = :n, #S = :s, #IT = :it, #HP = :hp, #B = :b";
 
     if (updatedMember.description is not null) updateExpression += ", #D = :d";
-    
-    UpdateItemRequest updateMemberRequest = new UpdateItemRequest {
+    if (updatedMember.selectiveProcess is not null) updateExpression += ", #selectiveProcess = :selectiveProcess";
+
+    UpdateItemRequest updateMemberRequest = new UpdateItemRequest
+    {
       TableName = table,
       Key = updateMemberKey,
       ExpressionAttributeNames = expressionAttributeNames,
@@ -115,14 +138,16 @@ public class MembersService {
     return false;
   }
 
-  public async Task<bool> DeleteMember(string id) {
-    Dictionary<string, AttributeValue> deleteMemberKey = new Dictionary<string, AttributeValue>() { 
-      { "id", new AttributeValue { S = id } } 
+  public async Task<bool> DeleteMember(string id)
+  {
+    Dictionary<string, AttributeValue> deleteMemberKey = new Dictionary<string, AttributeValue>() {
+      { "id", new AttributeValue { S = id } }
     };
 
-    DeleteItemRequest deleteMemberRequest = new DeleteItemRequest {
-        TableName = table,
-        Key = deleteMemberKey,
+    DeleteItemRequest deleteMemberRequest = new DeleteItemRequest
+    {
+      TableName = table,
+      Key = deleteMemberKey,
     };
 
     var deleteMemberResponse = await dynamo.DeleteItemAsync(deleteMemberRequest);
@@ -131,12 +156,14 @@ public class MembersService {
     return false;
   }
 
-  public async Task<Member?> GetMember(string id) {
-    Dictionary<string, AttributeValue> Key = new Dictionary<string, AttributeValue>() { 
-      { "id", new AttributeValue { S = id } } 
+  public async Task<Member?> GetMember(string id)
+  {
+    Dictionary<string, AttributeValue> Key = new Dictionary<string, AttributeValue>() {
+      { "id", new AttributeValue { S = id } }
     };
-    
-    GetItemRequest request = new GetItemRequest {
+
+    GetItemRequest request = new GetItemRequest
+    {
       TableName = table,
       Key = Key,
     };
@@ -148,28 +175,30 @@ public class MembersService {
     return JsonConvert.DeserializeObject<Member>(Document.FromAttributeMap(response.Item).ToJsonPretty());
   }
 
-  public async Task<bool> UploadMemberPfp(string fileName, MemoryStream fileStream) {
+  public async Task<bool> UploadMemberPfp(string fileName, MemoryStream fileStream)
+  {
     TransferUtility fileTransferUtility = new TransferUtility(s3);
 
     string fileKey = $"assets/pfps/{fileName}";
 
     await fileTransferUtility.UploadAsync(fileStream, "agoradebates.com", fileKey);
 
-    Dictionary<string, AttributeValue> updateMemberKey = new Dictionary<string, AttributeValue>() { 
-      { "id", new AttributeValue { S = fileName } } 
+    Dictionary<string, AttributeValue> updateMemberKey = new Dictionary<string, AttributeValue>() {
+      { "id", new AttributeValue { S = fileName } }
     };
 
-    Dictionary<string,string> expressionAttributeNames = new Dictionary<string, string>() {
+    Dictionary<string, string> expressionAttributeNames = new Dictionary<string, string>() {
       { "#HP", "hasPfp"},
     };
 
-    Dictionary<string,AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
+    Dictionary<string, AttributeValue> expressionAttributeValues = new Dictionary<string, AttributeValue> {
       { ":hp", new AttributeValue { BOOL = true } }
     };
 
     string updateExpression = "SET #HP = :hp";
-    
-    UpdateItemRequest updateMemberRequest = new UpdateItemRequest {
+
+    UpdateItemRequest updateMemberRequest = new UpdateItemRequest
+    {
       TableName = table,
       Key = updateMemberKey,
       ExpressionAttributeNames = expressionAttributeNames,
