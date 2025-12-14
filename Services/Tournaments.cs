@@ -320,10 +320,13 @@ public class TournamentsService {
         });  
       }
 
+      string? roundBreakCategory = roundNode.Attributes["break-category"]?.Value;
+
       rounds.Add(new {
         roundName,
         roundAbbreviation,
         isEliminationRound,
+        breakCategory = roundBreakCategory,
         debates
       });
     }
